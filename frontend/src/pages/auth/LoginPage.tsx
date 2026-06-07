@@ -29,9 +29,9 @@ export default function LoginPage() {
       setAuth(data.user, data.token);
       navigate("/admin");
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || "Login failed";
+      const errorMsg = err.response?.data?.message || err.message || "Login failed";
       toast.error(errorMsg);
-      console.error("Login error:", errorMsg);
+      console.error("Login error details:", err);
     } finally {
       setLoading(false);
     }
