@@ -1,11 +1,12 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import api from '../lib/api';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import api from "../lib/api";
 
 interface User {
   id: string;
   name: string;
   email: string;
+  role?: string;
   plan: string;
   avatar?: string;
   credits?: number;
@@ -29,10 +30,10 @@ export const useAuthStore = create<AuthStore>()(
       setAuth: (user, token) => set({ user, token }),
       logout: () => set({ user: null, token: null }),
       fetchMe: async () => {
-        const { data } = await api.get('/auth/me');
+        const { data } = await api.get("/auth/me");
         set({ user: data });
       },
     }),
-    { name: 'auth', partialize: (s) => ({ token: s.token, user: s.user }) }
-  )
+    { name: "auth", partialize: (s) => ({ token: s.token, user: s.user }) },
+  ),
 );
