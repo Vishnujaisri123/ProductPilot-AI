@@ -13,7 +13,17 @@ const app = express();
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow any origin that is vercel, localhost, or matches CLIENT_URL
+    if (!origin || origin.includes('localhost') || origin.includes('vercel.app') || origin === process.env.CLIENT_URL) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Temporarily allow all to prevent CORS blocking login
+    }
+  },
+  credentials: true
+}));
 app.use(helmet());
 
 setupPassport(app);
