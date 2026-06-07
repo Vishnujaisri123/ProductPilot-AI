@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Zap, Github, Mail } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import api, { API_BASE_URL } from '../../lib/api';
+import api from '../../lib/api';
 import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
@@ -43,10 +43,10 @@ export default function RegisterPage() {
         </div>
 
         <div className="flex gap-3 mb-6">
-          <a href={`${API_BASE_URL}/auth/google`} className="flex-1 flex items-center justify-center gap-2 glass border border-white/10 py-3 rounded-xl text-sm hover:border-white/20 transition-colors">
+          <a href={`${import.meta.env.VITE_API_URL || '/api'}/auth/google`} className="flex-1 flex items-center justify-center gap-2 glass border border-white/10 py-3 rounded-xl text-sm hover:border-white/20 transition-colors">
             <Mail size={16} /> Google
           </a>
-          <a href={`${API_BASE_URL}/auth/github`} className="flex-1 flex items-center justify-center gap-2 glass border border-white/10 py-3 rounded-xl text-sm hover:border-white/20 transition-colors">
+          <a href={`${import.meta.env.VITE_API_URL || '/api'}/auth/github`} className="flex-1 flex items-center justify-center gap-2 glass border border-white/10 py-3 rounded-xl text-sm hover:border-white/20 transition-colors">
             <Github size={16} /> GitHub
           </a>
         </div>
