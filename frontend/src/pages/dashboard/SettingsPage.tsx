@@ -32,14 +32,13 @@ export default function SettingsPage() {
       {/* Profile */}
       <div className="glass p-6 space-y-4">
         <h2 className="font-semibold flex items-center gap-2"><User size={18} className="text-primary" /> Profile</h2>
-        <div className="flex items-center gap-4 pb-4 border-b border-white/5">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-bg text-2xl font-bold">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl font-bold">
             {user?.name?.[0]?.toUpperCase()}
           </div>
           <div>
-            <p className="font-semibold">{user?.name}</p>
-            <p className="text-white/40 text-sm">{user?.email}</p>
-            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full capitalize">{user?.plan} plan</span>
+            <h2 className="text-xl font-bold">{user?.name}</h2>
+            <p className="text-white/50">{user?.email}</p>
           </div>
         </div>
         <input className="input" placeholder="Full Name" defaultValue={user?.name || ''} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />

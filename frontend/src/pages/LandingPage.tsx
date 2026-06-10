@@ -24,12 +24,7 @@ const STEPS = [
   { n: '04', title: 'Telegram Delivery', desc: 'Product image, details, and JSON file sent to your Telegram.' },
 ];
 
-const PLANS = [
-  { name: 'Free', price: '₹0', limit: '50 images/mo', features: ['AI Extraction', 'JSON Export', 'Basic Analytics'] },
-  { name: 'Starter', price: '₹999', limit: '500 images/mo', features: ['Everything in Free', 'Telegram Delivery', 'CSV/Excel Export', 'RAG Validation'], popular: true },
-  { name: 'Pro', price: '₹2,999', limit: '5,000 images/mo', features: ['Everything in Starter', 'Batch Processing', 'API Access', 'Knowledge Base', 'Priority Support'] },
-  { name: 'Enterprise', price: 'Custom', limit: 'Unlimited', features: ['Everything in Pro', 'Custom Integrations', 'Dedicated Support', 'SLA'] },
-];
+// Removed PLANS array as billing is removed for admin
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0 } };
 
@@ -46,7 +41,7 @@ export default function LandingPage() {
             <span className="font-bold text-lg gradient-text">ProductVision AI</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-white/60">
-            {['Features', 'Platforms', 'Pricing', 'FAQ'].map(item => (
+            {['Features', 'Platforms', 'FAQ'].map(item => (
               <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">{item}</a>
             ))}
           </div>
@@ -153,37 +148,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Simple Pricing</h2>
-            <p className="text-white/50 text-lg">Start free, scale as you grow.</p>
-          </motion.div>
-          <div className="grid md:grid-cols-4 gap-6">
-            {PLANS.map((plan, i) => (
-              <motion.div key={plan.name} initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} transition={{ delay: i * 0.1 }} className={`glass p-6 relative ${plan.popular ? 'border-primary/40 shadow-glow-primary' : ''}`}>
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-bg text-xs font-bold px-3 py-1 rounded-full">POPULAR</div>
-                )}
-                <h3 className="font-bold text-lg mb-1">{plan.name}</h3>
-                <div className="text-3xl font-black gradient-text mb-1">{plan.price}</div>
-                <p className="text-white/40 text-sm mb-6">{plan.limit}</p>
-                <ul className="space-y-3 mb-6">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-white/70">
-                      <CheckCircle size={14} className="text-accent shrink-0" /> {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/register" className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all ${plan.popular ? 'btn-primary' : 'btn-secondary'}`}>
-                  Get Started
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Pricing section removed */}
 
       {/* FAQ */}
       <section id="faq" className="py-24 px-6">
@@ -195,7 +160,7 @@ export default function LandingPage() {
             ['Which platforms are supported?', 'Amazon, Flipkart, Meesho, Alibaba, Myntra, Ajio, Shopify, and any other e-commerce platform.'],
             ['How accurate is the extraction?', 'Our AI pipeline achieves 98%+ accuracy using GPT-4o Vision, OCR, and RAG validation combined.'],
             ['How does Telegram delivery work?', 'Connect your Telegram bot once. Every extraction automatically sends the image, structured data, and JSON file.'],
-            ['Can I use the API?', 'Yes. Starter and above plans include API access with your own API key.'],
+            ['Can I use the API?', 'Yes. Contact us to generate your API key.'],
           ].map(([q, a]) => (
             <motion.div key={q} initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="glass mb-4 p-6">
               <div className="flex items-start gap-3">
