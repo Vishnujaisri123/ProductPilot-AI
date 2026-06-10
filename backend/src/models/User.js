@@ -45,6 +45,7 @@ userSchema.methods.matchPassword = async function (password) {
 };
 
 userSchema.methods.canProcess = function () {
+  if (this.role === 'admin') return true;
   const limits = { free: 50, starter: 500, pro: 5000, enterprise: Infinity };
   return this.usageThisMonth < (limits[this.plan] || 50);
 };
