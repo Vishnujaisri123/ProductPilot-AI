@@ -141,7 +141,12 @@ export default function ProductDetailsPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="p-4 bg-white/5 rounded-xl border border-white/5">
                 <div className="text-white/40 text-xs mb-1">Price</div>
-                <div className="font-semibold text-lg">{product.price || 'N/A'}</div>
+                <div className="flex flex-col">
+                  <span className="font-bold text-xl">{product.discountPrice || product.price || 'N/A'}</span>
+                  {product.discountPrice && product.price && (
+                    <span className="text-white/40 line-through text-sm">{product.price}</span>
+                  )}
+                </div>
               </div>
               <div className="p-4 bg-white/5 rounded-xl border border-white/5">
                 <div className="text-white/40 text-xs mb-1">Rating</div>

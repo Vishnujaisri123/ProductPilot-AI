@@ -52,6 +52,7 @@ const worker = new Worker('extraction', async (job) => {
     brand: result.extracted?.brand?.value,
     category: result.extracted?.category?.value,
     price: result.extracted?.price?.value,
+    discountPrice: result.extracted?.discount_price?.value,
     rating: result.extracted?.rating?.value,
     platform: result.platform,
     imageUrl: imageUrl,
