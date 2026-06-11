@@ -26,7 +26,7 @@ exports.getProducts = async (req, res) => {
       ];
     }
 
-    const products = await Product.find(query).sort({ createdAt: -1 });
+    const products = await Product.find(query).populate('extractionId').sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
