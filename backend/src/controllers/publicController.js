@@ -27,6 +27,7 @@ exports.getPublicProducts = async (req, res) => {
 
     const products = await Product.find(query)
       .sort(sortOptions)
+      .populate('extractionId')
       .select('-affiliateLink'); // EXCLUDE affiliateLink for security
 
     res.json(products);

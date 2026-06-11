@@ -111,9 +111,28 @@ export default function PublicProductDetails() {
 
             <div className="flex flex-wrap items-end gap-4 mb-8 pb-8 border-b border-white/10">
               <div>
-                <div className="text-sm text-white/40 mb-1">Current Price</div>
-                <div className="text-4xl font-black text-white">
-                  {product.price || "Check Details"}
+                <div className="text-sm text-white/40 mb-1">Deal Price</div>
+                <div className="flex items-center gap-3">
+                  <span className="text-4xl font-black text-white">
+                    {val("discount_price") || product.price || "Check Details"}
+                  </span>
+                  {val("discount_price") && product.price && (
+                    <div className="flex flex-col">
+                      <span className="text-lg text-white/40 line-through font-medium">
+                        {product.price}
+                      </span>
+                      {/* Calculate savings if possible */}
+                      {(() => {
+                        const dp = parseFloat(String(val("discount_price")).replace(/[^0-9.]/g, ''));
+                        const mp = parseFloat(String(product.price).replace(/[^0-9.]/g, ''));
+                        if (mp > dp && mp > 0) {
+                          const save = Math.round(((mp - dp) / mp) * 100);
+                          return <span className="text-[#ff9900] text-sm font-bold">{save}% OFF</span>;
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  )}
                 </div>
               </div>
 

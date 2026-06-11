@@ -217,8 +217,15 @@ export default function StorefrontHome() {
                   </Link>
 
                   <div className="mt-4 flex items-center justify-between">
-                    <div className="text-xl font-bold text-white">
-                      {p.price || "Check Price"}
+                    <div className="flex flex-col">
+                      <div className="text-xl font-bold text-[#ff9900]">
+                        {p.extractionId?.extracted?.discount_price?.value || p.price || "Check Price"}
+                      </div>
+                      {p.extractionId?.extracted?.discount_price?.value && p.price && (
+                        <div className="text-xs text-white/40 line-through">
+                          {p.price}
+                        </div>
+                      )}
                     </div>
 
                     <Link
