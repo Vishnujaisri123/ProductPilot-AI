@@ -9,6 +9,12 @@ const getGroq = () => {
 
 const EXTRACTION_PROMPT = `You are an expert product data extractor. Analyze this e-commerce product screenshot and extract all available product information.
 
+CRITICAL EXTRACTION RULES:
+1. "price": Must be the Original MRP (Maximum Retail Price). This is usually crossed out (e.g., ₹1,999). Include the currency symbol.
+2. "discount_price": Must be the current selling/deal price. This is the active price you pay (e.g., ₹999). Include the currency symbol.
+3. If only one price exists on the page, put it in "discount_price" and leave "price" empty.
+4. "brand": Look for the brand name, usually located near the product name or in the specs.
+
 For each field, provide a value and a confidence score (0-100).
 
 Return ONLY valid JSON in this exact format:
