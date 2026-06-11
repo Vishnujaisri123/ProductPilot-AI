@@ -142,10 +142,20 @@ export default function ProductDetailsPage() {
               <div className="p-4 bg-white/5 rounded-xl border border-white/5">
                 <div className="text-white/40 text-xs mb-1">Deal Price</div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-xl">{product.discountPrice || product.price || 'N/A'}</span>
-                  {product.discountPrice && product.price && (
-                    <span className="text-white/40 line-through text-sm">{product.price}</span>
-                  )}
+                  {(() => {
+                    const dealPrice = product.discountPrice || eData.discount_price?.value;
+                    const mrp = product.price || eData.price?.value;
+                    const displayDealPrice = dealPrice || mrp || 'N/A';
+                    
+                    return (
+                      <>
+                        <span className="font-bold text-xl">{displayDealPrice}</span>
+                        {dealPrice && mrp && dealPrice !== mrp && (
+                          <span className="text-white/40 line-through text-sm">{mrp}</span>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
               <div className="p-4 bg-white/5 rounded-xl border border-white/5">

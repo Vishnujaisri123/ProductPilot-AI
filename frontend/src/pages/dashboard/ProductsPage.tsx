@@ -192,9 +192,25 @@ export default function ProductsPage() {
                 <h3 className="font-semibold line-clamp-2 text-sm mb-2" title={p.productName}>{p.productName}</h3>
                 
                 <div className="mt-auto">
-                  <div className="flex items-center gap-3 text-sm text-white/60 mb-4">
-                    <span className="text-white font-semibold">{p.discountPrice || p.price || 'N/A'}</span>
-                    {p.rating && <span className="flex items-center gap-1 text-yellow-400">★ {p.rating}</span>}
+                  <div className="flex items-center gap-3 text-sm mb-4">
+                    <div className="flex flex-col">
+                      {(() => {
+                        const ext = p.extractionId?.extracted || {};
+                        const dealPrice = p.discountPrice || ext.discount_price?.value;
+                        const mrp = p.price || ext.price?.value;
+                        const displayDealPrice = dealPrice || mrp || 'N/A';
+                        
+                        return (
+                          <>
+                            <span className="text-white font-bold text-lg">{displayDealPrice}</span>
+                            {dealPrice && mrp && dealPrice !== mrp && (
+                              <span className="text-white/40 line-through text-xs">{mrp}</span>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                    {p.rating && <span className="flex items-center gap-1 text-yellow-400 ml-auto">★ {p.rating}</span>}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 mt-4">
