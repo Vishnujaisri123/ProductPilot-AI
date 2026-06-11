@@ -19,8 +19,18 @@ const formatMessage = (extraction) => {
   const productLink = escapeHtml(extraction.affiliateUrl || extraction.manualProductUrl || extraction.productLinks?.amazon || extraction.productLinks?.flipkart || extraction.productLinks?.official || e['product_link']?.value || 'Not Found');
   
   const platform = escapeHtml(extraction.platform) || 'Not Found';
-  const price = val('discount_price') !== 'Not Found' ? val('discount_price') : val('price');
-  const mrp = val('price') !== 'Not Found' ? val('price') : 'Not Found';
+  
+  const dPrice = val('discount_price');
+  const oPrice = val('price');
+  
+  let price = dPrice !== 'Not Found' ? dPrice : oPrice;
+  let mrp = oPrice !== 'Not Found' ? oPrice : 'Not Found';
+  
+  // If MRP and Deal Price are exactly the same, or if we only have one price,
+  // we assume it's the deal price and MRP is not available.
+  if (mrp === price) {
+    mrp = 'Not Found';
+  }
   
   // Try to calculate savings if price and MRP are numbers
   let savings = 'Not Found';

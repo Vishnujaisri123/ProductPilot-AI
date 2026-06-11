@@ -194,12 +194,13 @@ export default function ProductsPage() {
                 <div className="mt-auto">
                   <div className="flex items-center gap-3 text-sm mb-4">
                     <div className="flex flex-col">
+                      <span className="text-white/50 text-[10px] uppercase font-bold">Deal Price</span>
                       <span className="text-white font-bold text-lg">{p.discountPrice || p.price || 'N/A'}</span>
                       {p.discountPrice && p.price && (
                         <span className="text-white/40 line-through text-xs">{p.price}</span>
                       )}
                     </div>
-                    {p.rating && <span className="flex items-center gap-1 text-yellow-400 ml-auto">★ {p.rating}</span>}
+                    {p.rating && <span className="flex items-center gap-1 text-yellow-400 ml-auto mt-3">★ {p.rating}</span>}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 mt-4">
