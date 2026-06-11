@@ -17,6 +17,8 @@ export default function ProductsPage() {
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [affiliateLink, setAffiliateLink] = useState('');
+  const [editPrice, setEditPrice] = useState('');
+  const [editDiscountPrice, setEditDiscountPrice] = useState('');
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['products', platformFilter, statusFilter, search],
@@ -30,7 +32,8 @@ export default function ProductsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, link }: { id: string, link: string }) => api.patch(`/products/${id}`, { affiliateLink: link }),
+    mutationFn: ({ id, link, price, discountPrice }: { id: string, link: string, price: string, discountPrice: string }) => 
+      api.patch(`/products/${id}`, { affiliateLink: link, price, discountPrice }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Affiliate link saved!');
@@ -215,10 +218,20 @@ export default function ProductsPage() {
 
                   <div className="grid grid-cols-2 gap-2 mt-4">
                     <button 
-                      onClick={() => { setEditingProduct(p); setAffiliateLink(p.affiliateLink || ''); setLinkModalOpen(true); }}
+                      onClick={() => { 
+                        setEditingProduct(p); 
+                        setAffiliateLink(p.affiliateLink || ''); 
+                        
+                        // Populate prices fallback to extraction
+                        const ext = p.extractionId?.extracted || {};
+                        setEditDiscountPrice(p.discountPrice || ext.discount_price?.value || '');
+                        setEditPrice(p.price || ext.price?.value || '');
+                        
+                        setLinkModalOpen(true); 
+                      }}
                       className={`btn btn-sm ${p.affiliateLink ? 'glass-hover text-white/80' : 'bg-primary/20 text-primary hover:bg-primary/30'} flex items-center justify-center gap-1.5`}
                     >
-                      <LinkIcon size={14} /> {p.affiliateLink ? 'Edit Link' : 'Add Link'}
+                      <LinkIcon size={14} /> Edit Details
                     </button>
                     
                     <Link to={`/admin/products/${p._id}`} className="btn btn-sm glass-hover flex items-center justify-center gap-1.5">
@@ -268,6 +281,28 @@ export default function ProductsPage() {
 
             <div className="space-y-4">
               <div>
+                <label className="block text-sm text-white/50 mb-1">Deal Price</label>
+                <input 
+                  type="text" 
+                  value={editDiscountPrice}
+                  onChange={(e) => setEditDiscountPrice(e.target.value)}
+                  className="input w-full"
+                  placeholder="₹999"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-white/50 mb-1">Original Price (MRP)</label>
+                <input 
+                  type="text" 
+                  value={editPrice}
+                  onChange={(e) => setEditPrice(e.target.value)}
+                  className="input w-full"
+                  placeholder="₹1,999"
+                />
+              </div>
+
+              <div>
                 <label className="block text-sm text-white/50 mb-1">Affiliate URL</label>
                 <input 
                   type="url" 
@@ -283,10 +318,15 @@ export default function ProductsPage() {
               <button className="btn btn-ghost" onClick={() => setLinkModalOpen(false)}>Cancel</button>
               <button 
                 className="btn btn-primary"
-                onClick={() => updateMutation.mutate({ id: editingProduct._id, link: affiliateLink })}
+                onClick={() => updateMutation.mutate({ 
+                  id: editingProduct._id, 
+                  link: affiliateLink,
+                  price: editPrice,
+                  discountPrice: editDiscountPrice
+                })}
                 disabled={updateMutation.isPending}
               >
-                {updateMutation.isPending ? 'Saving...' : 'Save Link'}
+                {updateMutation.isPending ? 'Saving...' : 'Save Details'}
               </button>
             </div>
           </motion.div>

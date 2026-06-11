@@ -26,7 +26,7 @@ exports.getProducts = async (req, res) => {
       ];
     }
 
-    const products = await Product.find(query).populate('extractionId').sort({ createdAt: -1 });
+    const products = await Product.find(query).sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -56,7 +56,7 @@ exports.getProductByExtractionId = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const { affiliateLink } = req.body;
+    const { affiliateLink, price, discountPrice } = req.body;
     const product = await Product.findOne({ _id: req.params.id, userId: req.user._id });
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
@@ -66,6 +66,10 @@ exports.updateProduct = async (req, res) => {
         product.status = 'Ready';
       }
     }
+    
+    if (price !== undefined) product.price = price;
+    if (discountPrice !== undefined) product.discountPrice = discountPrice;
+    
     await product.save();
     
     // Also update extraction if needed
