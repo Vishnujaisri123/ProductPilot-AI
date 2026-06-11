@@ -218,14 +218,21 @@ export default function StorefrontHome() {
 
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex flex-col">
-                      <div className="text-xl font-bold text-[#ff9900]">
-                        {p.extractionId?.extracted?.discount_price?.value || p.price || "Check Price"}
-                      </div>
-                      {p.extractionId?.extracted?.discount_price?.value && p.price && (
-                        <div className="text-xs text-white/40 line-through">
-                          {p.price}
-                        </div>
-                      )}
+                      {(() => {
+                        const ext = p.extractionId?.extracted || {};
+                        const dealPrice = p.discountPrice || ext.discount_price?.value;
+                        const mrp = p.price || ext.price?.value;
+                        const displayDealPrice = dealPrice || mrp || "Check Price";
+                        
+                        return (
+                          <>
+                            <span className="text-xl font-bold text-white leading-none">{displayDealPrice}</span>
+                            {dealPrice && mrp && dealPrice !== mrp && (
+                              <span className="text-white/40 line-through text-xs mt-1">{mrp}</span>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
 
                     <Link
