@@ -11,47 +11,86 @@ const escapeHtml = (text) => {
 
 const formatMessage = (extraction) => {
   const e = extraction.extracted;
-  const val = (field) => escapeHtml(e[field]?.value);
+  const val = (field) => {
+    const value = e[field]?.value;
+    return value ? escapeHtml(value) : 'Not Found';
+  };
 
-  const productLink = escapeHtml(extraction.affiliateUrl || extraction.manualProductUrl || extraction.productLinks?.amazon || extraction.productLinks?.flipkart || extraction.productLinks?.official || e['product_link']?.value);
+  const productLink = escapeHtml(extraction.affiliateUrl || extraction.manualProductUrl || extraction.productLinks?.amazon || extraction.productLinks?.flipkart || extraction.productLinks?.official || e['product_link']?.value || 'Not Found');
+  
+  const platform = escapeHtml(extraction.platform) || 'Not Found';
+  const price = val('discount_price') !== 'Not Found' ? val('discount_price') : val('price');
+  const mrp = val('price') !== 'Not Found' ? val('price') : 'Not Found';
+  
+  // Try to calculate savings if price and MRP are numbers
+  let savings = 'Not Found';
+  if (price !== 'Not Found' && mrp !== 'Not Found') {
+    const pStr = String(price).replace(/[^0-9.]/g, '');
+    const mStr = String(mrp).replace(/[^0-9.]/g, '');
+    if (pStr && mStr) {
+      const pNum = parseFloat(pStr);
+      const mNum = parseFloat(mStr);
+      if (mNum > pNum && mNum > 0) {
+        savings = Math.round(((mNum - pNum) / mNum) * 100) + '%';
+      }
+    }
+  }
 
-  return `🛒 <b>Product Extracted Successfully</b>
+  const features = e['features']?.value || [];
+  const featuresList = Array.isArray(features) && features.length > 0 
+    ? features.map(f => `• ${escapeHtml(f)}`).join('\n') 
+    : '• Not Found';
 
-📦 <b>Product Name:</b>
-${val('product_name')}
+  const currentDate = new Date().toLocaleDateString('en-IN', {
+    day: 'numeric', month: 'short', year: 'numeric'
+  });
 
-🏢 <b>Brand:</b>
-${val('brand')}
+  return `🔥 DEAL DETECTED 🔥
 
-💰 <b>Price:</b>
-${val('price')}
+📦 Product Name: ${val('product_name')}
 
-💸 <b>Discount Price:</b>
-${val('discount_price')}
+💰 Deal Price: ${price}
 
-⭐ <b>Rating:</b>
-${val('rating')}
+❌ MRP: ${mrp}
 
-📊 <b>Reviews:</b>
-${val('review_count')}
+📉 Savings: ${savings}
 
-🎯 <b>Confidence:</b>
-${extraction.confidenceScore}%
+⭐ Rating: ${val('rating')}
 
-🛍 <b>Platform:</b>
-${escapeHtml(extraction.platform) || 'Unknown'}
+📝 Reviews: ${val('review_count')}
 
-📦 <b>Availability:</b>
-${val('availability')}
+📦 Availability: ${val('availability')}
 
-🚚 <b>Delivery:</b>
-${val('delivery_info')}
+🎨 Color: ${val('color')}
 
-🔗 <b>Product Link:</b>
+🏢 Brand: ${val('brand')}
+
+🛍 Platform: ${platform}
+
+📂 Category: ${val('category')}
+
+💾 Storage: ${val('storage')}
+
+⚡ RAM: ${val('ram')}
+
+📏 Size: ${val('size')}
+
+🚚 Delivery: ${val('delivery_info')}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+📋 Key Features
+
+${featuresList}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 BUY NOW:
 ${productLink}
 
-🕒 <b>Extracted:</b>
-${new Date().toLocaleDateString('en-IN')}`;
+━━━━━━━━━━━━━━━━━━━━━━
+
+📅 Posted On: ${currentDate}`;
 };
 
 const sendToTelegram = async (botToken, chatId, extraction, imageUrl) => {
