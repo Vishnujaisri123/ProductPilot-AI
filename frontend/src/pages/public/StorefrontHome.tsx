@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Star, ExternalLink, Filter } from "lucide-react";
+import { Search, Star, ExternalLink, Filter, TrendingUp, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import api, { API_BASE_URL } from "../../lib/api";
@@ -39,79 +39,80 @@ export default function StorefrontHome() {
     });
   };
 
-  const CATEGORIES = [
-    "All",
-    "Electronics",
-    "Fashion",
-    "Home",
-    "Beauty",
-    "Sports",
-  ];
+  const CATEGORIES = ["All", "Electronics", "Fashion", "Home", "Beauty", "Sports"];
 
   return (
-    <div className="w-full">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-b from-[#1a1c23] to-[#0f1115] pt-20 pb-16 border-b border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#ff9900]/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+    <div className="min-h-screen bg-bg text-white selection:bg-primary/30 selection:text-white pb-20">
+      {/* Animated Hero Background */}
+      <div className="absolute top-0 inset-x-0 h-[600px] overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[80%] h-[80%] rounded-full bg-primary/10 blur-[150px] animate-pulse" />
+        <div className="absolute top-[10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-[120px] animate-blob" />
+      </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      {/* Hero Section */}
+      <div className="relative z-10 pt-32 pb-20 border-b border-border bg-surface/30 backdrop-blur-3xl">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 glass border border-primary/20 rounded-full px-4 py-1.5 text-xs font-semibold text-primary mb-6 tracking-wider uppercase">
+            <Sparkles size={14} /> Curated Daily
+          </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6"
+            transition={{ delay: 0.1 }}
+            className="font-display text-5xl md:text-7xl font-extrabold tracking-tight mb-6"
           >
-            Discover Top Rated <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff9900] to-[#ffb84d]">
-              Curated Products
-            </span>
+            Discover Exceptional <br />
+            <span className="gradient-text">Product Deals</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-white/50 max-w-2xl mx-auto mb-10"
+            transition={{ delay: 0.2 }}
+            className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-12 font-light"
           >
-            We manually review and verify the best deals and products across
-            Amazon, Flipkart, and more so you don't have to.
+            We deploy AI to track, verify, and curate the absolute best products across Amazon, Flipkart, and global marketplaces.
           </motion.p>
 
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
             onSubmit={handleSearch}
-            className="max-w-2xl mx-auto relative flex items-center"
+            className="max-w-3xl mx-auto relative flex items-center group"
           >
-            <Search className="absolute left-4 text-white/40" size={20} />
-            <input
-              type="text"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search for laptops, shoes, headphones..."
-              className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-12 pr-32 text-lg focus:outline-none focus:border-[#ff9900]/50 focus:bg-white/10 transition-all placeholder:text-white/30 text-white shadow-xl shadow-black/20"
-            />
-            <button
-              type="submit"
-              className="absolute right-2 bg-[#ff9900] hover:bg-[#e68a00] text-black font-bold py-2.5 px-6 rounded-full transition-colors"
-            >
-              Search
-            </button>
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
+            <div className="relative w-full flex items-center bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl">
+              <Search className="absolute left-5 text-primary" size={22} />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search laptops, sneakers, smart home..."
+                className="w-full bg-transparent py-5 pl-14 pr-36 text-lg focus:outline-none placeholder:text-white/30 text-white font-light"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 btn-primary py-3 px-8 text-sm uppercase tracking-wider font-bold"
+              >
+                Search
+              </button>
+            </div>
           </motion.form>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
+      <main className="max-w-7xl mx-auto px-6 py-16 relative z-10">
+        {/* Filters & Sorting */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
           <div className="flex flex-wrap gap-2 justify-center">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
                   category === cat
-                    ? "bg-white/15 text-white border-white/20"
-                    : "bg-transparent text-white/50 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
+                    ? "bg-primary text-white shadow-glow-primary scale-105"
+                    : "glass text-white/60 hover:text-white hover:bg-white/10"
                 }`}
               >
                 {cat}
@@ -119,135 +120,126 @@ export default function StorefrontHome() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2 bg-white/5 rounded-xl p-1 border border-white/5">
-            <Filter size={16} className="text-white/40 ml-2" />
+          <div className="flex items-center gap-3 glass rounded-xl px-4 py-2 border-border/50">
+            <Filter size={16} className="text-primary" />
+            <span className="text-sm text-white/40 font-medium">Sort by:</span>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="bg-transparent border-none text-sm text-white/80 py-1.5 px-3 pr-8 focus:ring-0 outline-none cursor-pointer"
+              className="bg-transparent border-none text-sm text-white font-medium focus:ring-0 outline-none cursor-pointer"
             >
-              <option value="latest" className="bg-[#1a1c23]">
-                Latest Added
-              </option>
-              <option value="price_asc" className="bg-[#1a1c23]">
-                Price: Low to High
-              </option>
-              <option value="price_desc" className="bg-[#1a1c23]">
-                Price: High to Low
-              </option>
-              <option value="rating" className="bg-[#1a1c23]">
-                Top Rated
-              </option>
+              <option value="latest" className="bg-bg text-white">Latest Added</option>
+              <option value="price_asc" className="bg-bg text-white">Price: Low to High</option>
+              <option value="price_desc" className="bg-bg text-white">Price: High to Low</option>
+              <option value="rating" className="bg-bg text-white">Top Rated</option>
             </select>
           </div>
         </div>
 
         {/* Product Grid */}
         {isLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="w-8 h-8 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin" />
+          <div className="flex justify-center items-center py-32">
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : !Array.isArray(products) || products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-            <Search size={48} className="text-white/10 mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">
-              No products found
-            </h3>
-            <p className="text-white/40">
-              Try adjusting your filters or search term.
-            </p>
-          </div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-32 text-center glass border-dashed">
+            <Search size={48} className="text-white/10 mb-6" />
+            <h3 className="font-display text-2xl font-bold text-white mb-2">No products found</h3>
+            <p className="text-white/40 font-light">Try adjusting your filters or searching for something else.</p>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((p: any, i: number) => (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                key={p._id}
-                className="group flex flex-col bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:bg-white/10 transition-all hover:border-white/10 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#ff9900]/10"
-              >
-                {/* Clicking the image goes to redirect API */}
-                <a
-                  href={`${API_BASE_URL}/public/redirect/${p._id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block relative aspect-square bg-white/5 p-4 overflow-hidden"
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {products.map((p: any, i: number) => {
+              const ext = p.extractionId?.extracted || {};
+              const dealPrice = p.discountPrice || ext.discount_price?.value;
+              const mrp = p.price || ext.price?.value;
+              const displayDealPrice = dealPrice || mrp || "Check Price";
+
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  key={p._id}
+                  className="group flex flex-col glass overflow-hidden hover:bg-surface/80 transition-all duration-500 border-border hover:border-primary/30 hover:shadow-glow-primary"
                 >
-                  {p.imageUrl ? (
-                    <img
-                      src={p.imageUrl}
-                      alt={p.productName}
-                      className="w-full h-full object-contain mix-blend-normal group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/20 font-medium">
-                      No Image
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-
-                  {/* View Deal Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="bg-[#ff9900] text-black font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all">
-                      View Deal <ExternalLink size={14} />
-                    </div>
-                  </div>
-                </a>
-
-                <div className="p-5 flex-1 flex flex-col">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 bg-white/5 px-2 py-1 rounded-md">
-                      {p.platform || "Unknown"}
-                    </span>
-                    {p.rating && (
-                      <div className="flex items-center gap-1 text-[#ff9900] text-sm font-medium">
-                        <Star size={14} fill="currentColor" /> {p.rating}
-                      </div>
+                  {/* Image Container */}
+                  <div className="relative aspect-[4/3] bg-white/5 p-6 overflow-hidden flex items-center justify-center">
+                    {p.imageUrl ? (
+                      <img
+                        src={p.imageUrl}
+                        alt={p.productName}
+                        className="w-full h-full object-contain mix-blend-screen group-hover:scale-110 transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <div className="text-white/20 font-medium">No Image</div>
                     )}
-                  </div>
-
-                  <Link
-                    to={`/products/${p._id}`}
-                    className="block flex-1 group/title"
-                  >
-                    <h3 className="font-semibold text-white/90 group-hover/title:text-[#ff9900] transition-colors line-clamp-2 leading-tight mb-2">
-                      {p.productName}
-                    </h3>
-                  </Link>
-
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex flex-col">
-                      {(() => {
-                        const ext = p.extractionId?.extracted || {};
-                        const dealPrice = p.discountPrice || ext.discount_price?.value;
-                        const mrp = p.price || ext.price?.value;
-                        const displayDealPrice = dealPrice || mrp || "Check Price";
-                        
-                        return (
-                          <>
-                            <span className="text-xl font-bold text-white leading-none">{displayDealPrice}</span>
-                            {dealPrice && mrp && dealPrice !== mrp && (
-                              <span className="text-white/40 line-through text-xs mt-1">{mrp}</span>
-                            )}
-                          </>
-                        );
-                      })()}
+                    
+                    {/* Platform Badge */}
+                    <div className="absolute top-4 left-4 bg-bg/80 backdrop-blur-md text-[10px] font-bold uppercase tracking-widest text-primary px-3 py-1.5 rounded-lg border border-primary/20 shadow-lg">
+                      {p.platform || "Unknown"}
                     </div>
 
-                    <Link
-                      to={`/products/${p._id}`}
-                      className="text-sm font-medium text-white/50 hover:text-white transition-colors"
-                    >
-                      Details
-                    </Link>
+                    {/* Quick View Overlay */}
+                    <div className="absolute inset-0 bg-bg/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                      <a
+                        href={`${API_BASE_URL}/public/redirect/${p._id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn-primary flex items-center gap-2 transform translate-y-8 group-hover:translate-y-0 transition-all duration-500"
+                      >
+                        Buy Now <ExternalLink size={16} />
+                      </a>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  {/* Details Container */}
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="flex items-center justify-between mb-3">
+                      {p.rating && (
+                        <div className="flex items-center gap-1.5 text-accent text-sm font-bold bg-accent/10 px-2 py-1 rounded-md border border-accent/20">
+                          <Star size={12} fill="currentColor" /> {p.rating}
+                        </div>
+                      )}
+                      {dealPrice && mrp && dealPrice !== mrp && (
+                        <div className="flex items-center gap-1 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                          <TrendingUp size={12} /> Deal
+                        </div>
+                      )}
+                    </div>
+
+                    <Link to={`/products/${p._id}`} className="block flex-1 mb-4">
+                      <h3 className="font-display font-medium text-lg text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                        {p.productName}
+                      </h3>
+                    </Link>
+
+                    <div className="pt-4 border-t border-border flex items-end justify-between">
+                      <div className="flex flex-col">
+                        <span className="font-display text-2xl font-bold text-white leading-none">
+                          {displayDealPrice}
+                        </span>
+                        {dealPrice && mrp && dealPrice !== mrp && (
+                          <span className="text-white/40 line-through text-sm mt-1.5 font-medium">
+                            {mrp}
+                          </span>
+                        )}
+                      </div>
+
+                      <Link
+                        to={`/products/${p._id}`}
+                        className="text-sm font-bold text-white/50 group-hover:text-white transition-colors"
+                      >
+                        Details →
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

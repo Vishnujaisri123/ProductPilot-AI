@@ -1,13 +1,13 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #050816;
-  --primary: #00e5ff;
-  --secondary: #7b61ff;
-  --accent: #00ffc6;
+  --bg: #050505;
+  --primary: #FF4500;
+  --secondary: #FF8C00;
+  --accent: #FFD700;
 }
 
 * {
@@ -22,54 +22,72 @@ body {
   font-family: "Inter", sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: "Outfit", sans-serif;
 }
 
 @layer components {
   .glass {
-    @apply backdrop-blur-xl rounded-2xl;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    @apply backdrop-blur-2xl rounded-2xl;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
   }
 
   .glass-hover {
-    @apply glass transition-all duration-300 hover:shadow-glass;
+    @apply glass transition-all duration-500 hover:shadow-glass;
   }
 
   .glass-hover:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
   }
 
   .btn-primary {
-    @apply bg-primary text-bg font-semibold px-6 py-3 rounded-xl transition-all duration-200
-           hover:shadow-glow-primary hover:scale-105 active:scale-95;
+    @apply relative overflow-hidden bg-gradient-to-r from-primary to-secondary text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-glow-primary active:scale-95;
+  }
+  
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn-primary:hover::after {
+    left: 100%;
   }
 
   .btn-secondary {
-    @apply glass text-primary font-semibold px-6 py-3 rounded-xl transition-all duration-200;
-    border: 1px solid rgba(123, 97, 255, 0.3);
+    @apply glass text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300;
   }
 
   .btn-secondary:hover {
-    background-color: rgba(123, 97, 255, 0.1);
-    border-color: rgba(123, 97, 255, 0.6);
+    background: rgba(255, 69, 0, 0.1);
+    border-color: rgba(255, 69, 0, 0.3);
   }
 
   .btn-ghost {
-    @apply px-4 py-2 rounded-lg transition-colors;
-    color: rgba(255, 255, 255, 0.7);
+    @apply px-4 py-2 rounded-lg transition-colors font-medium;
+    color: rgba(255, 255, 255, 0.6);
   }
 
   .btn-ghost:hover {
-    color: rgba(255, 255, 255, 1);
+    color: white;
     background-color: rgba(255, 255, 255, 0.05);
   }
 
   .input {
-    @apply w-full rounded-xl px-4 py-3 text-white outline-none transition-all duration-200;
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    @apply w-full rounded-xl px-4 py-3 text-white outline-none transition-all duration-300 bg-surface border border-border;
   }
 
   .input::placeholder {
@@ -77,17 +95,13 @@ body {
   }
 
   .input:focus {
-    border-color: rgba(0, 229, 255, 0.5);
-    background-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .neon-text {
-    @apply text-primary;
-    text-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+    border-color: rgba(255, 69, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.1);
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-gradient-x;
   }
 
   .sidebar-item {
@@ -96,25 +110,19 @@ body {
   }
 
   .sidebar-item:hover {
-    color: rgba(255, 255, 255, 1);
-    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
   }
 
   .sidebar-item-active {
     @apply sidebar-item text-primary;
-    background-color: rgba(0, 229, 255, 0.1);
-    border: 1px solid rgba(0, 229, 255, 0.2);
+    background-color: rgba(255, 69, 0, 0.1);
+    border: 1px solid rgba(255, 69, 0, 0.2);
   }
 
-  .confidence-high {
-    @apply text-emerald-400;
-  }
-  .confidence-mid {
-    @apply text-amber-400;
-  }
-  .confidence-low {
-    @apply text-red-400;
-  }
+  .confidence-high { @apply text-emerald-400; }
+  .confidence-mid { @apply text-amber-400; }
+  .confidence-low { @apply text-red-400; }
 }
 
 /* Scrollbar */
