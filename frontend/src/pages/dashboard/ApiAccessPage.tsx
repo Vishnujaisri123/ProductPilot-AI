@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Key, Copy, Plus, Eye, EyeOff } from 'lucide-react';
+import { Key, Copy, Plus, Eye, EyeOff, Trash2 } from 'lucide-react';
 import api from '../../lib/api';
 import { formatDate } from '../../lib/utils';
 import toast from 'react-hot-toast';
@@ -25,6 +25,12 @@ export default function ApiAccessPage() {
     mutationFn: (name: string) => api.post('/auth/api-keys', { name }),
     onSuccess: (res) => { setNewKey(res.data.key); setKeyName(''); qc.invalidateQueries({ queryKey: ['me'] }); },
     onError: () => toast.error('Failed to generate key'),
+  });
+
+  const delMut = useMutation({
+    mutationFn: (key: string) => api.delete(`/auth/api-keys/${key}`),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['me'] }); toast.success('Key deleted successfully'); },
+    onError: () => toast.error('Failed to delete key'),
   });
 
   const copy = (text: string) => { navigator.clipboard.writeText(text); toast.success('Copied!'); };
@@ -68,7 +74,21 @@ export default function ApiAccessPage() {
                   <p className="text-sm font-medium">{k.name}</p>
                   <p className="text-xs text-white/40">Created {formatDate(k.createdAt)} · Last used: {k.lastUsed ? formatDate(k.lastUsed) : 'Never'}</p>
                 </div>
-                <code className="text-xs text-white/40 font-mono">{k.key.slice(0, 12)}...</code>
+                <div className="flex items-center gap-3">
+                  <code className="text-xs text-white/40 font-mono">{k.key.slice(0, 12)}...</code>
+                  <button 
+                    onClick={() => {
+                      if(confirm('Are you sure you want to delete this API key? This action cannot be undone.')) {
+                        delMut.mutate(k.key);
+                      }
+                    }}
+                    disabled={delMut.isPending}
+                    className="text-red-400 hover:text-red-300 transition-colors p-1"
+                    title="Delete Key"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>

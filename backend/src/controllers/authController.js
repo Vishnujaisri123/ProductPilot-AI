@@ -123,3 +123,10 @@ exports.generateApiKey = async (req, res) => {
   });
   res.json({ key });
 };
+
+exports.deleteApiKey = async (req, res) => {
+  await User.findByIdAndUpdate(req.user._id, {
+    $pull: { apiKeys: { key: req.params.keyId } },
+  });
+  res.json({ success: true });
+};
