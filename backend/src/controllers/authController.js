@@ -125,8 +125,12 @@ exports.generateApiKey = async (req, res) => {
 };
 
 exports.deleteApiKey = async (req, res) => {
-  await User.findByIdAndUpdate(req.user._id, {
-    $pull: { apiKeys: { key: req.params.keyId } },
-  });
-  res.json({ success: true });
+  try {
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { apiKeys: { key: req.params.keyId } },
+    });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
