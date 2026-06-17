@@ -25,6 +25,8 @@ import ContentLibraryPage from './pages/dashboard/social/ContentLibraryPage';
 import PublicLayout from './pages/public/PublicLayout';
 import StorefrontHome from './pages/public/StorefrontHome';
 import PublicProductDetails from './pages/public/PublicProductDetails';
+import PrivacyPolicy from './pages/public/PrivacyPolicy';
+import Terms from './pages/public/Terms';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((s) => s.token);
@@ -38,6 +40,8 @@ export default function App() {
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<StorefrontHome />} />
         <Route path="products/:id" element={<PublicProductDetails />} />
+        <Route path="privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="terms" element={<Terms />} />
       </Route>
 
       {/* Auth */}

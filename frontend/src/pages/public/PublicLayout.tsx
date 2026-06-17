@@ -70,6 +70,10 @@ export default function PublicLayout() {
           <p className="text-white/40 text-sm max-w-md mx-auto mb-6">
             Curating the best products from around the web. Every product we feature has been verified and curated for quality.
           </p>
+          <div className="flex justify-center gap-6 text-xs text-white/40 mb-6">
+            <Link to="/privacy-policy" className="hover:text-[#ff9900] transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-[#ff9900] transition-colors">Terms of Service</Link>
+          </div>
           <div className="text-xs text-white/30">
             &copy; {new Date().getFullYear()} BestFinds Marketplace. All rights reserved. <br/> As an affiliate we earn from qualifying purchases.
           </div>
