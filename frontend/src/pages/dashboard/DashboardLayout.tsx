@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Upload, Layers, History, Bot, BookOpen, Package,
   BarChart3, Key, Settings, Zap, LogOut,
-  Bell, Search, ChevronDown, Menu, X, User
+  Bell, Search, ChevronDown, Menu, X, User, Share2
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -13,6 +13,7 @@ const NAV = [
   { to: '/admin/upload', icon: Upload, label: 'Upload' },
   { to: '/admin/batch', icon: Layers, label: 'Batch Processing' },
   { to: '/admin/products', icon: Package, label: 'Products' },
+  { to: '/admin/social', icon: Share2, label: 'Social Hub' },
   { to: '/admin/history', icon: History, label: 'History' },
   { to: '/admin/telegram', icon: Bot, label: 'Telegram' },
   { to: '/admin/knowledge', icon: BookOpen, label: 'Knowledge Base' },

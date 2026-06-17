@@ -9,6 +9,9 @@ const routes = require('./routes');
 const { errorHandler } = require('./middleware/errorHandler');
 const { apiLimiter } = require('./middleware/rateLimiter');
 
+// Initialize background workers
+require('./workers/schedulingWorker');
+
 const app = express();
 
 app.use(express.json({ limit: '50mb' }));

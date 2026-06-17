@@ -86,19 +86,28 @@ export default function ProductDetailsPage() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <button 
-                  onClick={() => sendTelegramMutation.mutate()}
-                  disabled={!product.affiliateLink || sendTelegramMutation.isPending}
-                  className="btn glass-hover text-blue-400 flex items-center justify-center gap-2"
+              <div className="space-y-2">
+                <Link 
+                  to={`/admin/social/preview/${product._id}`}
+                  className="btn btn-primary w-full flex items-center justify-center gap-2"
                 >
-                  <Send size={16} /> Send TG
-                </button>
-                {product.affiliateLink && (
-                  <a href={product.affiliateLink} target="_blank" rel="noreferrer" className="btn glass-hover flex items-center justify-center gap-2">
-                    <ExternalLink size={16} /> Visit
-                  </a>
-                )}
+                  <Zap size={16} className="text-bg animate-bounce" /> Promote in Social Hub
+                </Link>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button 
+                    onClick={() => sendTelegramMutation.mutate()}
+                    disabled={!product.affiliateLink || sendTelegramMutation.isPending}
+                    className="btn glass-hover text-blue-400 flex items-center justify-center gap-2"
+                  >
+                    <Send size={16} /> Send TG
+                  </button>
+                  {product.affiliateLink && (
+                    <a href={product.affiliateLink} target="_blank" rel="noreferrer" className="btn glass-hover flex items-center justify-center gap-2">
+                      <ExternalLink size={16} /> Visit
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </div>

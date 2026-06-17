@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Search, Filter, Link as LinkIcon, Send, Eye, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Search, Filter, Link as LinkIcon, Send, Eye, Trash2, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
@@ -239,22 +239,27 @@ export default function ProductsPage() {
                     </Link>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div className="grid grid-cols-3 gap-1 mt-2">
+                    <Link 
+                      to={`/admin/social/preview/${p._id}`}
+                      className="btn btn-sm bg-primary/20 hover:bg-primary/30 border border-primary/10 text-white flex items-center justify-center gap-1 text-[10px]"
+                    >
+                      <Sparkles size={11} className="text-primary animate-pulse" /> Promote
+                    </Link>
                     <button 
                       onClick={() => bulkTelegramMutation.mutate([p._id])}
                       disabled={p.status === 'Draft' || bulkTelegramMutation.isPending}
-                      className="btn btn-sm glass-hover flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed text-blue-400"
+                      className="btn btn-sm glass-hover flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed text-blue-400 text-[10px]"
                     >
-                      <Send size={14} /> Send TG
+                      <Send size={11} /> Send TG
                     </button>
-                    
                     <button 
                       onClick={() => {
                         if (confirm('Delete this product?')) deleteMutation.mutate(p._id);
                       }}
-                      className="btn btn-sm glass-hover flex items-center justify-center gap-1.5 text-red-400 hover:bg-red-400/10"
+                      className="btn btn-sm glass-hover flex items-center justify-center gap-1 text-red-400 hover:bg-red-400/10 text-[10px]"
                     >
-                      <Trash2 size={14} /> Delete
+                      <Trash2 size={11} /> Delete
                     </button>
                   </div>
                 </div>

@@ -16,6 +16,11 @@ import SettingsPage from './pages/dashboard/SettingsPage';
 import BatchPage from './pages/dashboard/BatchPage';
 import ProductsPage from './pages/dashboard/ProductsPage';
 import ProductDetailsPage from './pages/dashboard/ProductDetailsPage';
+import SocialHubPage from './pages/dashboard/social/SocialHubPage';
+import SocialAccountsPage from './pages/dashboard/social/SocialAccountsPage';
+import CampaignsPage from './pages/dashboard/social/CampaignsPage';
+import ContentPreviewStudio from './pages/dashboard/social/ContentPreviewStudio';
+import ContentLibraryPage from './pages/dashboard/social/ContentLibraryPage';
 
 import PublicLayout from './pages/public/PublicLayout';
 import StorefrontHome from './pages/public/StorefrontHome';
@@ -50,6 +55,11 @@ export default function App() {
         <Route path="batch" element={<BatchPage />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="products/:id" element={<ProductDetailsPage />} />
+        <Route path="social" element={<SocialHubPage />} />
+        <Route path="social/accounts" element={<SocialAccountsPage />} />
+        <Route path="social/campaigns" element={<CampaignsPage />} />
+        <Route path="social/preview/:productId" element={<ContentPreviewStudio />} />
+        <Route path="social/library" element={<ContentLibraryPage />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="telegram" element={<TelegramPage />} />
         <Route path="knowledge" element={<KnowledgeBasePage />} />

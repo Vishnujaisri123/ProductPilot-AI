@@ -9,5 +9,6 @@ router.use('/billing', require('./billing'));
 router.use('/admin', require('./admin'));
 router.use('/products', require('./products'));
 router.use('/public', require('./public'));
+router.use('/social', require('./social'));
 
 module.exports = router;
