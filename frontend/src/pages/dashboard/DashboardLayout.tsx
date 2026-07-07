@@ -62,16 +62,23 @@ export default function DashboardLayout() {
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
-        <div className="p-6 border-b border-white/5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <Zap size={16} className="text-bg" />
+        <div className="p-6 border-b border-white/5 flex flex-col gap-2 relative">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full border-2 border-accent flex items-center justify-center animate-pulse shadow-[0_0_12px_rgba(0,229,255,0.7)] bg-accent/10 relative">
+                <div className="w-2.5 h-2.5 rounded-full bg-accent absolute" />
+                <div className="w-4 h-4 rounded-full border border-dashed border-accent/60 animate-spin" />
+              </div>
+              <span className="font-bold text-xs tracking-widest text-accent font-display">JARVIS // SYSTEM</span>
             </div>
-            <span className="font-bold gradient-text">ProductVision AI</span>
+            <button className="md:hidden text-white/50 hover:text-white" onClick={closeSidebar}>
+              <X size={20} />
+            </button>
           </div>
-          <button className="md:hidden text-white/50 hover:text-white" onClick={closeSidebar}>
-            <X size={20} />
-          </button>
+          <div className="text-[10px] text-white/30 uppercase tracking-widest border-t border-white/5 pt-2 flex items-center gap-1.5 font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            MARK 85 CORE // ONLINE
+          </div>
         </div>
 
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -147,10 +154,10 @@ export default function DashboardLayout() {
               </AnimatePresence>
             </div>
 
-            {/* Credits (Tooltip/Indicator) */}
-            <div className="glass px-2 md:px-3 py-1.5 md:py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm cursor-help" title="Available API Credits">
-              <Zap size={14} className="text-primary" />
-              <span className="text-white/70">{user?.credits ?? 50} credits</span>
+            {/* Credits (Reactor Core Power) */}
+            <div className="glass px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs border border-accent/20 shadow-[0_0_10px_rgba(0,229,255,0.05)] cursor-help" title="Reactor Core API Credits">
+              <div className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(0,229,255,0.8)]" />
+              <span className="text-accent font-bold uppercase tracking-wider">CORE: {user?.credits ?? 50}% PWR</span>
             </div>
 
             {/* User Profile */}

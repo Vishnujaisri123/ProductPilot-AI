@@ -56,35 +56,35 @@ export default function StorefrontHome() {
     <div className="min-h-screen bg-bg text-white selection:bg-primary/30 selection:text-white pb-20">
       {/* Animated Cyber Grid Hero Background */}
       <div className="absolute top-0 inset-x-0 h-[700px] overflow-hidden pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_80%,transparent_100%)]" />
-        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[90%] rounded-full bg-primary/8 blur-[160px] animate-pulse" />
-        <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-secondary/8 blur-[130px] animate-blob" />
-        <div className="absolute top-[30%] left-[-10%] w-[45%] h-[45%] rounded-full bg-accent/5 blur-[120px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,229,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,229,255,0.025)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_80%,transparent_100%)]" />
+        <div className="absolute top-[-35%] left-1/2 -translate-x-1/2 w-[90%] h-[90%] rounded-full bg-primary/10 blur-[150px] animate-pulse" />
+        <div className="absolute top-[15%] right-[-10%] w-[45%] h-[45%] rounded-full bg-accent/8 blur-[120px] animate-blob" />
+        <div className="absolute top-[25%] left-[-10%] w-[45%] h-[45%] rounded-full bg-secondary/6 blur-[110px]" />
       </div>
 
       {/* Hero Section */}
-      <div className="relative z-10 pt-32 pb-20 border-b border-border bg-surface/30 backdrop-blur-3xl">
+      <div className="relative z-10 pt-32 pb-20 border-b border-white/5 bg-surface/30 backdrop-blur-3xl">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 text-left space-y-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 glass border border-primary/20 rounded-full px-4 py-1.5 text-xs font-semibold text-primary mb-2 tracking-wider uppercase">
-              <Sparkles size={14} /> Curated Daily
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 glass border border-accent/20 rounded-full px-4 py-1.5 text-xs font-semibold text-accent mb-2 tracking-widest uppercase">
+              <Sparkles size={14} className="animate-spin text-accent" /> JARVIS // PROTOCOL ACTIVE
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="font-display text-4xl md:text-6xl font-extrabold tracking-tight"
+              className="font-display text-4xl md:text-6xl font-extrabold tracking-tight uppercase"
             >
-              Discover Exceptional <br />
-              <span className="gradient-text">Product Deals</span>
+              Discover Curated <br />
+              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">MARK-85 DEALS</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-base md:text-lg text-white/50 font-light max-w-xl"
+              className="text-base md:text-lg text-white/50 max-w-xl font-medium tracking-wide"
             >
-              We deploy AI to track, verify, and curate the absolute best products across Amazon, Flipkart, and global marketplaces.
+              WE DEPLOY INTELLIGENT SUIT SYSTEMS TO SCAN, TELEMETER, AND RETRIEVE THE OPTIMAL MARKET OFFERS IN REAL TIME.
             </motion.p>
 
             <motion.form
@@ -94,21 +94,21 @@ export default function StorefrontHome() {
               onSubmit={handleSearch}
               className="relative flex items-center group max-w-xl"
             >
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
-              <div className="relative w-full flex items-center bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl">
-                <Search className="absolute left-5 text-primary" size={20} />
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-500" />
+              <div className="relative w-full flex items-center bg-surface border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                <Search className="absolute left-5 text-accent animate-pulse" size={20} />
                 <input
                   type="text"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="Search laptops, sneakers, smart home..."
-                  className="w-full bg-transparent py-4 pl-14 pr-32 text-base focus:outline-none placeholder:text-white/30 text-white font-light"
+                  placeholder="EXECUTE SEARCH PROTOCOL..."
+                  className="w-full bg-transparent py-4 pl-14 pr-32 text-base focus:outline-none placeholder:text-white/20 text-white font-semibold uppercase tracking-wider"
                 />
                 <button
                   type="submit"
                   className="absolute right-2 btn-primary py-2 px-6 text-xs uppercase tracking-wider font-bold"
                 >
-                  Search
+                  Execute
                 </button>
               </div>
             </motion.form>
@@ -227,7 +227,7 @@ export default function StorefrontHome() {
               return (
                 <ThreeDProductCard key={p._id}>
                   <div
-                    className="group flex flex-col h-full glass overflow-hidden hover:bg-surface/80 transition-all duration-500 border-border hover:border-primary/30"
+                    className="group flex flex-col h-full glass overflow-hidden hover:bg-surface/80 transition-all duration-500 border-white/5 hover:border-accent/40 hud-corner"
                     style={{ transformStyle: "preserve-3d" }}
                   >
                     {/* Image Container */}
@@ -288,16 +288,16 @@ export default function StorefrontHome() {
                         {/* High-Tech Extraction Validation progress bar */}
                         <div className="mb-4 p-2 bg-white/3 rounded-xl border border-white/5">
                           <div className="flex justify-between items-center text-[10px] text-white/40 font-bold uppercase tracking-wide mb-1">
-                            <span>AI Confidence</span>
-                            <span className={p.confidenceScore >= 85 ? 'text-emerald-400' : p.confidenceScore >= 60 ? 'text-amber-400' : 'text-red-400'}>
+                            <span>JARVIS CONFIDENCE</span>
+                            <span className={(p.confidenceScore || 0) >= 85 ? 'text-accent' : (p.confidenceScore || 0) >= 60 ? 'text-secondary' : 'text-primary'}>
                               {p.confidenceScore || 0}%
                             </span>
                           </div>
                           <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
                             <div 
                               className={`h-full rounded-full transition-all duration-500 ${
-                                (p.confidenceScore || 0) >= 85 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.5)]' :
-                                (p.confidenceScore || 0) >= 60 ? 'bg-amber-500 shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
+                                (p.confidenceScore || 0) >= 85 ? 'bg-accent shadow-[0_0_8px_rgba(0,229,255,0.5)]' :
+                                (p.confidenceScore || 0) >= 60 ? 'bg-secondary shadow-[0_0_8px_rgba(255,179,0,0.5)]' : 'bg-primary shadow-[0_0_8px_rgba(213,0,0,0.5)]'
                               }`}
                               style={{ width: `${p.confidenceScore || 0}%` }}
                             />
@@ -307,7 +307,7 @@ export default function StorefrontHome() {
 
                       <div className="pt-4 border-t border-white/5 flex items-end justify-between">
                         <div className="flex flex-col">
-                          <span className="font-display text-2xl font-bold text-white leading-none">
+                          <span className="font-display text-2xl font-bold text-accent leading-none">
                             {displayDealPrice}
                           </span>
                           {dealPrice && mrp && dealPrice !== mrp && (
@@ -319,9 +319,9 @@ export default function StorefrontHome() {
 
                         <Link
                           to={`/products/${p._id}`}
-                          className="text-sm font-bold text-white/50 group-hover:text-white transition-colors"
+                          className="text-xs font-bold uppercase tracking-wider text-secondary hover:text-accent transition-colors"
                         >
-                          Details →
+                          Telemetry →
                         </Link>
                       </div>
                     </div>
