@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -35,6 +35,49 @@ export default function UploadPage() {
   const [result, setResult] = useState<any>(null);
   const [step, setStep] = useState(0);
   const [urls, setUrls] = useState({ manualProductUrl: "", affiliateUrl: "" });
+
+  // Listen to paste events
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      // Do not capture paste events if user is typing in input fields (like the URL inputs)
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.indexOf("image") !== -1) {
+          const pastedFile = item.getAsFile();
+          if (pastedFile) {
+            // Generate a custom name for the pasted image
+            const fileExtension = pastedFile.type.split('/')[1] || 'png';
+            const fileWithCustomName = new File([pastedFile], `pasted_image_${Date.now()}.${fileExtension}`, {
+              type: pastedFile.type,
+            });
+
+            setFile(fileWithCustomName);
+            setPreview(URL.createObjectURL(fileWithCustomName));
+            setStatus("idle");
+            setResult(null);
+            setExtractionId(null);
+            setStep(0);
+            toast.success("Image pasted from clipboard!");
+            e.preventDefault();
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+    };
+  }, []);
 
   const onDrop = useCallback((files: File[]) => {
     const f = files[0];
@@ -161,10 +204,10 @@ export default function UploadPage() {
               <input {...getInputProps()} />
               <Upload size={40} className="mx-auto mb-4 text-white/30" />
               <p className="font-medium mb-1">
-                {isDragActive ? "Drop it here" : "Drag & drop screenshot"}
+                {isDragActive ? "Drop it here" : "Drag & drop or paste (Ctrl+V) screenshot"}
               </p>
               <p className="text-white/40 text-sm">
-                PNG, JPG, WEBP, PDF up to 20MB
+                PNG, JPG, WEBP, PDF up to 20MB or Clipboard Image
               </p>
             </div>
           ) : (
