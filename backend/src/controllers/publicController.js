@@ -11,7 +11,30 @@ exports.getPublicProducts = async (req, res) => {
       query.platform = platform;
     }
     if (category && category !== 'All') {
-      query.category = category;
+      const lowerCat = category.toLowerCase();
+      if (lowerCat === 'electronics') {
+        query.category = { 
+          $regex: /electronics|laptop|smartphone|camera|mobile|watch|headphone|earbud|soundbar|speaker|tv|television|computer|keyboard|mice|mouse|projector|audio|cable|adapter|charger|fan|cooler|heater|vacuum|purifier|trimmer|massager|scale|card|reader|wearable|technology|microphone|wireless/i 
+        };
+      } else if (lowerCat === 'fashion') {
+        query.category = { 
+          $regex: /fashion|clothing|shirt|t-shirt|shoe|footwear|sneaker|belt|wallet|ethnic|wear|backpack|bag|accessory/i 
+        };
+      } else if (lowerCat === 'home') {
+        query.category = { 
+          $regex: /home|furniture|bed|cushion|mattress|chair|sofa|desk|table|kitchen|storage|cooker|cooktop|purifier|faucet|basin|rack|decor|wallpaper|bottle|lunch/i 
+        };
+      } else if (lowerCat === 'beauty') {
+        query.category = { 
+          $regex: /beauty|soap|deodorant|trimmer|sunscreen|skincare|care/i 
+        };
+      } else if (lowerCat === 'sports') {
+        query.category = { 
+          $regex: /sports|grip|strengthener|gadget|motorcycle|car|care|toy|vehicle/i 
+        };
+      } else {
+        query.category = { $regex: category, $options: 'i' };
+      }
     }
     if (search) {
       query.$or = [
