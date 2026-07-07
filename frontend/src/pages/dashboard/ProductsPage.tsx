@@ -207,7 +207,12 @@ export default function ProductsPage() {
               </div>
 
               <div className="p-4 flex-1 flex flex-col" style={{ transform: "translateZ(15px)" }}>
-                <h3 className="font-semibold line-clamp-2 text-sm mb-2" title={p.productName}>{p.productName}</h3>
+                <h3 
+                  className="font-display font-semibold line-clamp-2 text-sm mb-2 text-white/90 group-hover:text-accent transition-colors" 
+                  title={p.productName}
+                >
+                  {p.productName}
+                </h3>
                 
                 <div className="mt-auto">
                   <div className="flex items-center gap-3 text-sm mb-4">
@@ -220,15 +225,15 @@ export default function ProductsPage() {
                         
                         return (
                           <>
-                            <span className="text-white font-bold text-lg">{displayDealPrice}</span>
+                            <span className="text-accent font-bold text-base font-display">{displayDealPrice}</span>
                             {dealPrice && mrp && dealPrice !== mrp && (
-                              <span className="text-white/40 line-through text-xs">{mrp}</span>
+                              <span className="text-white/30 line-through text-xs">{mrp}</span>
                             )}
                           </>
                         );
                       })()}
                     </div>
-                    {p.rating && <span className="flex items-center gap-1 text-yellow-400 ml-auto">★ {p.rating}</span>}
+                    {p.rating && <span className="flex items-center gap-1 text-secondary ml-auto font-bold">★ {p.rating}</span>}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 mt-4">

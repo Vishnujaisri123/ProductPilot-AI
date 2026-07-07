@@ -280,7 +280,7 @@ export default function StorefrontHome() {
                         </div>
 
                         <Link to={`/products/${p._id}`} className="block mb-3">
-                          <h3 className="font-display font-medium text-base text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                          <h3 className="font-display font-medium text-base text-white/90 group-hover:text-accent transition-colors line-clamp-2 leading-snug">
                             {p.productName}
                           </h3>
                         </Link>
