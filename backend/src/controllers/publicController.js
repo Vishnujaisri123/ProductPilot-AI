@@ -17,13 +17,15 @@ exports.getPublicProducts = async (req, res) => {
       query.$or = [
         { productName: { $regex: search, $options: 'i' } },
         { brand: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } },
+        { platform: { $regex: search, $options: 'i' } },
       ];
     }
 
     let sortOptions = { createdAt: -1 }; // Latest
     if (sort === 'price_asc') sortOptions = { price: 1 };
     if (sort === 'price_desc') sortOptions = { price: -1 };
-    if (sort === 'rating') sortOptions = { rating: -1 };
+    if (sort === 'rating' || sort === 'popular') sortOptions = { rating: -1 };
 
     const products = await Product.find(query)
       .sort(sortOptions)

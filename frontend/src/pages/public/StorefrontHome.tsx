@@ -8,16 +8,31 @@ import ThreeDProductCard from "../../components/ui/ThreeDProductCard";
 
 export default function StorefrontHome() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialSearch = searchParams.get("search") || "";
-  const initialSort = searchParams.get("sort") || "latest";
-  const initialCategory = searchParams.get("category") || "All";
 
-  const [search, setSearch] = useState(initialSearch);
-  const [searchInput, setSearchInput] = useState(initialSearch);
-  const [sort, setSort] = useState(initialSort);
-  const [category, setCategory] = useState(initialCategory);
+  const search = searchParams.get("search") || "";
+  const sort = searchParams.get("sort") || "latest";
+  const category = searchParams.get("category") || "All";
 
+  const [searchInput, setSearchInput] = useState(search);
   const [carouselIndex, setCarouselIndex] = useState(0);
+
+  // Sync input with external URL parameter changes (e.g. clicking Home link)
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  // Debounced search input sync to URL search params
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchParams((prev) => {
+        if (searchInput) prev.set("search", searchInput);
+        else prev.delete("search");
+        return prev;
+      });
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchInput, setSearchParams]);
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["public-products", search, sort, category],
@@ -174,7 +189,13 @@ export default function StorefrontHome() {
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setCategory(cat)}
+                onClick={() => {
+                  setSearchParams((prev) => {
+                    if (cat !== "All") prev.set("category", cat);
+                    else prev.delete("category");
+                    return prev;
+                  });
+                }}
                 className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${
                   category === cat
                     ? "bg-gradient-to-r from-primary to-secondary text-white shadow-glow-primary scale-105 border border-primary/20"
@@ -194,13 +215,19 @@ export default function StorefrontHome() {
             <span className="text-xs text-white/40 font-bold uppercase tracking-wider">Sort by:</span>
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSearchParams((prev) => {
+                  prev.set("sort", val);
+                  return prev;
+                });
+              }}
               className="bg-transparent border-none text-sm text-white font-semibold focus:ring-0 outline-none cursor-pointer pr-8 py-0"
             >
               <option value="latest" className="bg-[#0c0c0c] text-white">Latest Added</option>
               <option value="price_asc" className="bg-[#0c0c0c] text-white">Price: Low to High</option>
               <option value="price_desc" className="bg-[#0c0c0c] text-white">Price: High to Low</option>
-              <option value="rating" className="bg-[#0c0c0c] text-white">Top Rated</option>
+              <option value="popular" className="bg-[#0c0c0c] text-white">Popular / Top Rated</option>
             </select>
           </div>
         </div>
