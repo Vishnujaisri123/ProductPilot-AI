@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import api from '../../lib/api';
 import { getConfidenceColor, formatDate } from '../../lib/utils';
 import ThreeDProductCard from '../../components/ui/ThreeDProductCard';
+import ScreenshotLightbox from '../../components/ui/ScreenshotLightbox';
 
 export default function ProductsPage() {
   const queryClient = useQueryClient();
@@ -15,6 +16,7 @@ export default function ProductsPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   
+  const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [affiliateLink, setAffiliateLink] = useState('');
@@ -173,13 +175,24 @@ export default function ProductsPage() {
               </div>
 
               <div 
-                className="aspect-square bg-white/5 relative overflow-hidden"
+                className="aspect-[4/3] bg-black/40 relative overflow-hidden"
                 style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}
               >
                 {p.imageUrl ? (
-                  <img src={p.imageUrl} alt={p.productName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={p.imageUrl} alt={p.productName} className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/20">No Image</div>
+                )}
+                
+                {p.imageUrl && (
+                  <div 
+                    onClick={() => setZoomImageUrl(p.imageUrl)}
+                    className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-zoom-in"
+                  >
+                    <div className="glass p-2.5 rounded-lg border border-white/20 text-white flex items-center gap-1.5 text-xs font-semibold">
+                      <Eye size={14} /> Zoom Screenshot
+                    </div>
+                  </div>
                 )}
                 
                 <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-bg to-transparent h-20" />
@@ -339,6 +352,14 @@ export default function ProductsPage() {
             </div>
           </motion.div>
         </div>
+      )}
+      {/* Screenshot Lightbox */}
+      {zoomImageUrl && (
+        <ScreenshotLightbox
+          src={zoomImageUrl}
+          alt="Product Screenshot View"
+          onClose={() => setZoomImageUrl(null)}
+        />
       )}
     </div>
   );

@@ -54,10 +54,12 @@ export default function StorefrontHome() {
 
   return (
     <div className="min-h-screen bg-bg text-white selection:bg-primary/30 selection:text-white pb-20">
-      {/* Animated Hero Background */}
-      <div className="absolute top-0 inset-x-0 h-[600px] overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[80%] h-[80%] rounded-full bg-primary/10 blur-[150px] animate-pulse" />
-        <div className="absolute top-[10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-[120px] animate-blob" />
+      {/* Animated Cyber Grid Hero Background */}
+      <div className="absolute top-0 inset-x-0 h-[700px] overflow-hidden pointer-events-none z-0">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_80%,transparent_100%)]" />
+        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[90%] rounded-full bg-primary/8 blur-[160px] animate-pulse" />
+        <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-secondary/8 blur-[130px] animate-blob" />
+        <div className="absolute top-[30%] left-[-10%] w-[45%] h-[45%] rounded-full bg-accent/5 blur-[120px]" />
       </div>
 
       {/* Hero Section */}
@@ -167,35 +169,38 @@ export default function StorefrontHome() {
 
       <main className="max-w-7xl mx-auto px-6 py-16 relative z-10">
         {/* Filters & Sorting */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
-          <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-16 relative">
+          <div className="flex flex-wrap gap-2.5 justify-center z-10">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
+                className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${
                   category === cat
-                    ? "bg-primary text-white shadow-glow-primary scale-105"
-                    : "glass text-white/60 hover:text-white hover:bg-white/10"
+                    ? "bg-gradient-to-r from-primary to-secondary text-white shadow-glow-primary scale-105 border border-primary/20"
+                    : "glass text-white/50 hover:text-white hover:bg-white/10 border border-white/5"
                 }`}
               >
+                {category === cat && (
+                  <span className="absolute inset-0 bg-white/10 animate-ping opacity-20 rounded-xl" />
+                )}
                 {cat}
               </button>
             ))}
           </div>
 
-          <div className="flex items-center gap-3 glass rounded-xl px-4 py-2 border-border/50">
-            <Filter size={16} className="text-primary" />
-            <span className="text-sm text-white/40 font-medium">Sort by:</span>
+          <div className="flex items-center gap-3 glass rounded-xl px-4 py-2.5 border-white/5 hover:border-white/15 transition-all shadow-lg z-10">
+            <Filter size={15} className="text-primary" />
+            <span className="text-xs text-white/40 font-bold uppercase tracking-wider">Sort by:</span>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="bg-transparent border-none text-sm text-white font-medium focus:ring-0 outline-none cursor-pointer"
+              className="bg-transparent border-none text-sm text-white font-semibold focus:ring-0 outline-none cursor-pointer pr-8 py-0"
             >
-              <option value="latest" className="bg-bg text-white">Latest Added</option>
-              <option value="price_asc" className="bg-bg text-white">Price: Low to High</option>
-              <option value="price_desc" className="bg-bg text-white">Price: High to Low</option>
-              <option value="rating" className="bg-bg text-white">Top Rated</option>
+              <option value="latest" className="bg-[#0c0c0c] text-white">Latest Added</option>
+              <option value="price_asc" className="bg-[#0c0c0c] text-white">Price: Low to High</option>
+              <option value="price_desc" className="bg-[#0c0c0c] text-white">Price: High to Low</option>
+              <option value="rating" className="bg-[#0c0c0c] text-white">Top Rated</option>
             </select>
           </div>
         </div>
@@ -259,33 +264,54 @@ export default function StorefrontHome() {
                     </div>
 
                     {/* Details Container */}
-                    <div className="p-6 flex-1 flex flex-col" style={{ transform: "translateZ(20px)" }}>
-                      <div className="flex items-center justify-between mb-3">
-                        {p.rating && (
-                          <div className="flex items-center gap-1.5 text-accent text-sm font-bold bg-accent/10 px-2 py-1 rounded-md border border-accent/20">
-                            <Star size={12} fill="currentColor" /> {p.rating}
+                    <div className="p-6 flex-1 flex flex-col justify-between" style={{ transform: "translateZ(20px)" }}>
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          {p.rating && (
+                            <div className="flex items-center gap-1.5 text-accent text-sm font-bold bg-accent/10 px-2 py-1 rounded-md border border-accent/20">
+                              <Star size={12} fill="currentColor" /> {p.rating}
+                            </div>
+                          )}
+                          {dealPrice && mrp && dealPrice !== mrp && (
+                            <div className="flex items-center gap-1 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                              <TrendingUp size={12} /> Deal
+                            </div>
+                          )}
+                        </div>
+
+                        <Link to={`/products/${p._id}`} className="block mb-3">
+                          <h3 className="font-display font-medium text-base text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                            {p.productName}
+                          </h3>
+                        </Link>
+                        
+                        {/* High-Tech Extraction Validation progress bar */}
+                        <div className="mb-4 p-2 bg-white/3 rounded-xl border border-white/5">
+                          <div className="flex justify-between items-center text-[10px] text-white/40 font-bold uppercase tracking-wide mb-1">
+                            <span>AI Confidence</span>
+                            <span className={p.confidenceScore >= 85 ? 'text-emerald-400' : p.confidenceScore >= 60 ? 'text-amber-400' : 'text-red-400'}>
+                              {p.confidenceScore || 0}%
+                            </span>
                           </div>
-                        )}
-                        {dealPrice && mrp && dealPrice !== mrp && (
-                          <div className="flex items-center gap-1 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-                            <TrendingUp size={12} /> Deal
+                          <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                (p.confidenceScore || 0) >= 85 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.5)]' :
+                                (p.confidenceScore || 0) >= 60 ? 'bg-amber-500 shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
+                              }`}
+                              style={{ width: `${p.confidenceScore || 0}%` }}
+                            />
                           </div>
-                        )}
+                        </div>
                       </div>
 
-                      <Link to={`/products/${p._id}`} className="block flex-1 mb-4">
-                        <h3 className="font-display font-medium text-lg text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                          {p.productName}
-                        </h3>
-                      </Link>
-
-                      <div className="pt-4 border-t border-border flex items-end justify-between">
+                      <div className="pt-4 border-t border-white/5 flex items-end justify-between">
                         <div className="flex flex-col">
                           <span className="font-display text-2xl font-bold text-white leading-none">
                             {displayDealPrice}
                           </span>
                           {dealPrice && mrp && dealPrice !== mrp && (
-                            <span className="text-white/40 line-through text-sm mt-1.5 font-medium">
+                            <span className="text-white/40 line-through text-xs mt-1.5 font-medium">
                               {mrp}
                             </span>
                           )}

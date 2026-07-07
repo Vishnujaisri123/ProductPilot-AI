@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ExternalLink, Send, Zap, ShieldCheck, FileJson, History } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Send, Zap, ShieldCheck, FileJson, History, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
 import { getConfidenceColor, formatDate } from '../../lib/utils';
+import ScreenshotLightbox from '../../components/ui/ScreenshotLightbox';
 
 export default function ProductDetailsPage() {
+  const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
   const { id } = useParams();
   const queryClient = useQueryClient();
   const [affiliateLink, setAffiliateLink] = useState('');
@@ -59,9 +61,19 @@ export default function ProductDetailsPage() {
         {/* Left Column: Image & Actions */}
         <div className="space-y-6">
           <div className="glass p-4 rounded-2xl">
-            <div className="aspect-square bg-white/5 rounded-xl overflow-hidden mb-4 relative">
+            <div className="aspect-square bg-black/40 rounded-xl overflow-hidden mb-4 relative">
               {product.imageUrl ? (
-                <img src={product.imageUrl} alt={product.productName} className="w-full h-full object-contain" />
+                <div 
+                  className="relative w-full h-full cursor-zoom-in group"
+                  onClick={() => setZoomImageUrl(product.imageUrl)}
+                >
+                  <img src={product.imageUrl} alt={product.productName} className="w-full h-full object-contain p-2" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="glass px-3.5 py-2 text-xs font-semibold text-white flex items-center gap-1.5 border border-white/15">
+                      <Eye size={14} /> Zoom Screenshot
+                    </span>
+                  </div>
+                </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/20">No Image</div>
               )}
@@ -259,6 +271,14 @@ export default function ProductDetailsPage() {
           </div>
         </div>
       </div>
+      {/* Screenshot Lightbox */}
+      {zoomImageUrl && (
+        <ScreenshotLightbox
+          src={zoomImageUrl}
+          alt={product.productName}
+          onClose={() => setZoomImageUrl(null)}
+        />
+      )}
     </div>
   );
 }
