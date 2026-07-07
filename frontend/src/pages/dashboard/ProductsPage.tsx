@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
 import { getConfidenceColor, formatDate } from '../../lib/utils';
+import ThreeDProductCard from '../../components/ui/ThreeDProductCard';
 
 export default function ProductsPage() {
   const queryClient = useQueryClient();
@@ -142,13 +143,11 @@ export default function ProductsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((p: any, i: number) => (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ delay: i * 0.05 }}
-              key={p._id} 
-              className="glass rounded-2xl overflow-hidden group flex flex-col relative"
-            >
+            <ThreeDProductCard key={p._id}>
+              <div 
+                className="glass rounded-2xl overflow-hidden group flex flex-col relative h-full"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
               <div className="absolute top-3 left-3 z-10">
                 <input 
                   type="checkbox" 
@@ -173,7 +172,10 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              <div className="aspect-square bg-white/5 relative overflow-hidden">
+              <div 
+                className="aspect-square bg-white/5 relative overflow-hidden"
+                style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}
+              >
                 {p.imageUrl ? (
                   <img src={p.imageUrl} alt={p.productName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
@@ -191,7 +193,7 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              <div className="p-4 flex-1 flex flex-col">
+              <div className="p-4 flex-1 flex flex-col" style={{ transform: "translateZ(15px)" }}>
                 <h3 className="font-semibold line-clamp-2 text-sm mb-2" title={p.productName}>{p.productName}</h3>
                 
                 <div className="mt-auto">
@@ -264,7 +266,8 @@ export default function ProductsPage() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+              </div>
+            </ThreeDProductCard>
           ))}
         </div>
       )}
