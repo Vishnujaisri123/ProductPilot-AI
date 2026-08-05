@@ -14,6 +14,7 @@ CRITICAL EXTRACTION RULES:
 2. "discount_price": Must be the current selling/deal price. This is the active price you pay (e.g., ₹999). Include the currency symbol.
 3. If only one price exists on the page, put it in "discount_price" and leave "price" empty.
 4. "brand": Look for the brand name, usually located near the product name or in the specs.
+5. "description": Keep the description extremely short and concise (max 120 characters).
 
 For each field, provide a value and a confidence score (0-100).
 
@@ -65,6 +66,14 @@ const parseJSONRepaired = (str) => {
     return JSON.parse(cleanStr);
   } catch (err) {
     console.warn("Standard JSON.parse failed, attempting repair. Raw string:", cleanStr);
+    
+    // If JSON is truncated and doesn't end with a closing brace, repair it by closing it at the last completed object
+    if (!cleanStr.endsWith('}')) {
+      const lastBrace = cleanStr.lastIndexOf('}');
+      if (lastBrace !== -1) {
+        cleanStr = cleanStr.substring(0, lastBrace + 1) + '\n}';
+      }
+    }
     
     let index = 0;
     while (true) {
