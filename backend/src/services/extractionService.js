@@ -73,39 +73,78 @@ const parseJSONRepaired = (str) => {
       if (pos === -1) break;
       
       const colonPos = cleanStr.indexOf(':', pos + valueStartKey.length);
-      const quoteStart = cleanStr.indexOf('"', colonPos + 1);
-      if (quoteStart === -1) {
-        index = pos + 1;
-        continue;
+      const nextCharPos = cleanStr.substring(colonPos + 1).search(/\S/) + colonPos + 1;
+      const nextChar = cleanStr[nextCharPos];
+      
+      if (nextChar === '[') {
+        const arrayEnd = cleanStr.indexOf(']', nextCharPos);
+        if (arrayEnd !== -1) {
+          const arrayBody = cleanStr.substring(nextCharPos + 1, arrayEnd);
+          let arrayIndex = 0;
+          let newArrayBody = "";
+          while (true) {
+            const qStart = arrayBody.indexOf('"', arrayIndex);
+            if (qStart === -1) {
+              newArrayBody += arrayBody.substring(arrayIndex);
+              break;
+            }
+            const qEnd = arrayBody.indexOf('"', qStart + 1);
+            if (qEnd === -1) {
+              newArrayBody += arrayBody.substring(arrayIndex);
+              break;
+            }
+            const item = arrayBody.substring(qStart + 1, qEnd);
+            const escapedItem = item
+              .replace(/(?<!\\)"/g, '\\"')
+              .replace(/\r/g, '\\r')
+              .replace(/\n/g, '\\n')
+              .replace(/\t/g, '\\t');
+            
+            newArrayBody += arrayBody.substring(arrayIndex, qStart + 1) + escapedItem + '"';
+            arrayIndex = qEnd + 1;
+          }
+          cleanStr = cleanStr.substring(0, nextCharPos + 1) + newArrayBody + cleanStr.substring(arrayEnd);
+        }
+        index = pos + valueStartKey.length;
+      } else {
+        const quoteStart = cleanStr.indexOf('"', colonPos + 1);
+        const confidencePos = cleanStr.indexOf('confidence', pos);
+        if (confidencePos === -1) {
+          index = pos + 1;
+          continue;
+        }
+        
+        if (quoteStart === -1 || quoteStart > confidencePos) {
+          // Non-string value, skip it
+          index = confidencePos;
+          continue;
+        }
+        
+        const commaPos = cleanStr.lastIndexOf(',', confidencePos);
+        if (commaPos === -1 || commaPos < quoteStart) {
+          index = quoteStart + 1;
+          continue;
+        }
+        
+        const quoteEnd = cleanStr.lastIndexOf('"', commaPos - 1);
+        if (quoteEnd === -1 || quoteEnd <= quoteStart) {
+          index = quoteStart + 1;
+          continue;
+        }
+        
+        const rawVal = cleanStr.substring(quoteStart + 1, quoteEnd);
+        const escapedVal = rawVal
+          .replace(/(?<!\\)"/g, '\\"')
+          .replace(/\r/g, '\\r')
+          .replace(/\n/g, '\\n')
+          .replace(/\t/g, '\\t');
+        
+        if (escapedVal !== rawVal) {
+          cleanStr = cleanStr.substring(0, quoteStart + 1) + escapedVal + cleanStr.substring(quoteEnd);
+        }
+        
+        index = quoteStart + escapedVal.length + 2;
       }
-      
-      const confidencePos = cleanStr.indexOf('confidence', quoteStart);
-      if (confidencePos === -1) {
-        index = quoteStart + 1;
-        continue;
-      }
-      
-      const commaPos = cleanStr.lastIndexOf(',', confidencePos);
-      if (commaPos === -1 || commaPos < quoteStart) {
-        index = quoteStart + 1;
-        continue;
-      }
-      
-      const quoteEnd = cleanStr.lastIndexOf('"', commaPos - 1);
-      if (quoteEnd === -1 || quoteEnd <= quoteStart) {
-        index = quoteStart + 1;
-        continue;
-      }
-      
-      const rawVal = cleanStr.substring(quoteStart + 1, quoteEnd);
-      // Escape unescaped double quotes inside value
-      const escapedVal = rawVal.replace(/(?<!\\)"/g, '\\"');
-      
-      if (escapedVal !== rawVal) {
-        cleanStr = cleanStr.substring(0, quoteStart + 1) + escapedVal + cleanStr.substring(quoteEnd);
-      }
-      
-      index = quoteStart + escapedVal.length + 2;
     }
     
     // Final check for trailing commas after replacements
