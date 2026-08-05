@@ -58,6 +58,9 @@ const parseJSONRepaired = (str) => {
     cleanStr = cleanStr.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
   }
   
+  // Clean trailing commas before closing curly braces or square brackets
+  cleanStr = cleanStr.replace(/,\s*([}\]])/g, '$1');
+
   try {
     return JSON.parse(cleanStr);
   } catch (err) {
@@ -105,6 +108,8 @@ const parseJSONRepaired = (str) => {
       index = quoteStart + escapedVal.length + 2;
     }
     
+    // Final check for trailing commas after replacements
+    cleanStr = cleanStr.replace(/,\s*([}\]])/g, '$1');
     return JSON.parse(cleanStr);
   }
 };
@@ -119,7 +124,6 @@ const extractWithVision = async (imageBase64, ocrText, ragContext) => {
 
   const response = await getGroq().chat.completions.create({
     model: "qwen/qwen3.6-27b",
-    response_format: { type: "json_object" },
     messages: [
       {
         role: "user",
