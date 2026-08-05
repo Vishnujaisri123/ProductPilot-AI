@@ -52,6 +52,63 @@ const extractWithOCR = async (imageBuffer) => {
   return text;
 };
 
+const parseJSONRepaired = (str) => {
+  let cleanStr = str.trim();
+  if (cleanStr.startsWith("```")) {
+    cleanStr = cleanStr.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
+  }
+  
+  try {
+    return JSON.parse(cleanStr);
+  } catch (err) {
+    console.warn("Standard JSON.parse failed, attempting repair. Raw string:", cleanStr);
+    
+    let index = 0;
+    while (true) {
+      const valueStartKey = '"value"';
+      const pos = cleanStr.indexOf(valueStartKey, index);
+      if (pos === -1) break;
+      
+      const colonPos = cleanStr.indexOf(':', pos + valueStartKey.length);
+      const quoteStart = cleanStr.indexOf('"', colonPos + 1);
+      if (quoteStart === -1) {
+        index = pos + 1;
+        continue;
+      }
+      
+      const confidencePos = cleanStr.indexOf('confidence', quoteStart);
+      if (confidencePos === -1) {
+        index = quoteStart + 1;
+        continue;
+      }
+      
+      const commaPos = cleanStr.lastIndexOf(',', confidencePos);
+      if (commaPos === -1 || commaPos < quoteStart) {
+        index = quoteStart + 1;
+        continue;
+      }
+      
+      const quoteEnd = cleanStr.lastIndexOf('"', commaPos - 1);
+      if (quoteEnd === -1 || quoteEnd <= quoteStart) {
+        index = quoteStart + 1;
+        continue;
+      }
+      
+      const rawVal = cleanStr.substring(quoteStart + 1, quoteEnd);
+      // Escape unescaped double quotes inside value
+      const escapedVal = rawVal.replace(/(?<!\\)"/g, '\\"');
+      
+      if (escapedVal !== rawVal) {
+        cleanStr = cleanStr.substring(0, quoteStart + 1) + escapedVal + cleanStr.substring(quoteEnd);
+      }
+      
+      index = quoteStart + escapedVal.length + 2;
+    }
+    
+    return JSON.parse(cleanStr);
+  }
+};
+
 const extractWithVision = async (imageBase64, ocrText, ragContext) => {
   const contextStr =
     ragContext.length > 0
@@ -62,6 +119,7 @@ const extractWithVision = async (imageBase64, ocrText, ragContext) => {
 
   const response = await getGroq().chat.completions.create({
     model: "qwen/qwen3.6-27b",
+    response_format: { type: "json_object" },
     messages: [
       {
         role: "user",
@@ -81,7 +139,7 @@ const extractWithVision = async (imageBase64, ocrText, ragContext) => {
   const content = response.choices[0].message.content;
   const jsonMatch = content.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error("Failed to parse AI response");
-  return JSON.parse(jsonMatch[0]);
+  return parseJSONRepaired(jsonMatch[0]);
 };
 
 const detectPlatform = (extracted) => {
