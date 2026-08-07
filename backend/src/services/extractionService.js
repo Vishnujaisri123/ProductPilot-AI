@@ -9,16 +9,16 @@ const getGroq = () => {
 
 const EXTRACTION_PROMPT = `You are an expert product data extractor. Analyze this e-commerce product screenshot and extract all available product information.
 
-CRITICAL EXTRACTION RULES:
-1. "price": Must be the Original MRP (Maximum Retail Price). This is usually crossed out (e.g., ₹1,999). Include the currency symbol.
-2. "discount_price": Must be the current selling/deal price. This is the active price you pay (e.g., ₹999). Include the currency symbol.
-3. If only one price exists on the page, put it in "discount_price" and leave "price" empty.
-4. "brand": Look for the brand name, usually located near the product name or in the specs.
-5. "description": Keep the description extremely short and concise (max 120 characters).
+CRITICAL RULES:
+1. Return ONLY a raw JSON object. No markdown, no code fences, no explanation text before or after.
+2. "price": The original MRP (crossed-out price). Include currency symbol.
+3. "discount_price": The current selling price. Include currency symbol.
+4. "description": Max 100 characters. No quotes or special characters inside the value.
+5. "features": Array of short strings. Each item max 80 characters.
+6. All string values must NOT contain unescaped double quotes or newlines.
+7. If a field is not visible, use empty string "" and confidence 0.
 
-For each field, provide a value and a confidence score (0-100).
-
-Return ONLY valid JSON in this exact format:
+Return ONLY this JSON structure with no other text:
 {
   "product_name": {"value": "", "confidence": 0},
   "brand": {"value": "", "confidence": 0},
@@ -41,8 +41,7 @@ Return ONLY valid JSON in this exact format:
   "delivery_info": {"value": "", "confidence": 0}
 }
 
-Platform detection: Look for Amazon, Flipkart, Meesho, Alibaba, Shopify, Myntra, Ajio logos or URL patterns.
-Be precise. If a field is not visible, set confidence to 0 and value to empty string.`;
+Platform detection: Look for Amazon, Flipkart, Meesho, Alibaba, Shopify, Myntra, Ajio logos or URL patterns.`;
 
 const extractWithOCR = async (imageBuffer) => {
   const {
@@ -53,145 +52,64 @@ const extractWithOCR = async (imageBuffer) => {
   return text;
 };
 
-const parseJSONRepaired = (str) => {
-  let cleanStr = str.trim();
-  if (cleanStr.startsWith("```")) {
-    cleanStr = cleanStr.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
-  }
-  
-  // Clean trailing commas before closing curly braces or square brackets
-  cleanStr = cleanStr.replace(/,\s*([}\]])/g, '$1');
+const parseJSONSafe = (raw) => {
+  // 1. Strip markdown code fences
+  let s = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
 
-  try {
-    return JSON.parse(cleanStr);
-  } catch (err) {
-    console.warn("Standard JSON.parse failed, attempting repair. Raw string:", cleanStr);
-    
-    // If JSON is truncated and doesn't end with a closing brace, repair it by closing it at the last completed object
-    if (!cleanStr.endsWith('}')) {
-      const lastBrace = cleanStr.lastIndexOf('}');
-      if (lastBrace !== -1) {
-        cleanStr = cleanStr.substring(0, lastBrace + 1) + '\n}';
-      }
-    }
-    
-    let index = 0;
-    while (true) {
-      const valueStartKey = '"value"';
-      const pos = cleanStr.indexOf(valueStartKey, index);
-      if (pos === -1) break;
-      
-      const colonPos = cleanStr.indexOf(':', pos + valueStartKey.length);
-      const nextCharPos = cleanStr.substring(colonPos + 1).search(/\S/) + colonPos + 1;
-      const nextChar = cleanStr[nextCharPos];
-      
-      if (nextChar === '[') {
-        const arrayEnd = cleanStr.indexOf(']', nextCharPos);
-        if (arrayEnd !== -1) {
-          const arrayBody = cleanStr.substring(nextCharPos + 1, arrayEnd);
-          let arrayIndex = 0;
-          let newArrayBody = "";
-          while (true) {
-            const qStart = arrayBody.indexOf('"', arrayIndex);
-            if (qStart === -1) {
-              newArrayBody += arrayBody.substring(arrayIndex);
-              break;
-            }
-            const qEnd = arrayBody.indexOf('"', qStart + 1);
-            if (qEnd === -1) {
-              newArrayBody += arrayBody.substring(arrayIndex);
-              break;
-            }
-            const item = arrayBody.substring(qStart + 1, qEnd);
-            const escapedItem = item
-              .replace(/(?<!\\)"/g, '\\"')
-              .replace(/\r/g, '\\r')
-              .replace(/\n/g, '\\n')
-              .replace(/\t/g, '\\t');
-            
-            newArrayBody += arrayBody.substring(arrayIndex, qStart + 1) + escapedItem + '"';
-            arrayIndex = qEnd + 1;
-          }
-          cleanStr = cleanStr.substring(0, nextCharPos + 1) + newArrayBody + cleanStr.substring(arrayEnd);
-        }
-        index = pos + valueStartKey.length;
-      } else {
-        const quoteStart = cleanStr.indexOf('"', colonPos + 1);
-        const confidencePos = cleanStr.indexOf('confidence', pos);
-        if (confidencePos === -1) {
-          index = pos + 1;
-          continue;
-        }
-        
-        if (quoteStart === -1 || quoteStart > confidencePos) {
-          // Non-string value, skip it
-          index = confidencePos;
-          continue;
-        }
-        
-        const commaPos = cleanStr.lastIndexOf(',', confidencePos);
-        if (commaPos === -1 || commaPos < quoteStart) {
-          index = quoteStart + 1;
-          continue;
-        }
-        
-        const quoteEnd = cleanStr.lastIndexOf('"', commaPos - 1);
-        if (quoteEnd === -1 || quoteEnd <= quoteStart) {
-          index = quoteStart + 1;
-          continue;
-        }
-        
-        const rawVal = cleanStr.substring(quoteStart + 1, quoteEnd);
-        const escapedVal = rawVal
-          .replace(/(?<!\\)"/g, '\\"')
-          .replace(/\r/g, '\\r')
-          .replace(/\n/g, '\\n')
-          .replace(/\t/g, '\\t');
-        
-        if (escapedVal !== rawVal) {
-          cleanStr = cleanStr.substring(0, quoteStart + 1) + escapedVal + cleanStr.substring(quoteEnd);
-        }
-        
-        index = quoteStart + escapedVal.length + 2;
-      }
-    }
-    
-    // Final check for trailing commas after replacements
-    cleanStr = cleanStr.replace(/,\s*([}\]])/g, '$1');
-    return JSON.parse(cleanStr);
-  }
+  // 2. Extract outermost { ... } block
+  const start = s.indexOf('{');
+  const end = s.lastIndexOf('}');
+  if (start === -1 || end === -1) throw new Error('No JSON object found in response');
+  s = s.slice(start, end + 1);
+
+  // 3. Remove trailing commas before } or ]
+  s = s.replace(/,\s*([}\]])/g, '$1');
+
+  // 4. Try direct parse first
+  try { return JSON.parse(s); } catch (_) {}
+
+  // 5. Sanitize unescaped control characters inside strings
+  s = s.replace(/"((?:[^"\\]|\\.)*)"/g, (_, inner) => {
+    const fixed = inner
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+    return `"${fixed}"`;
+  });
+  s = s.replace(/,\s*([}\]])/g, '$1');
+
+  return JSON.parse(s);
 };
 
 const extractWithVision = async (imageBase64, ocrText, ragContext) => {
-  const contextStr =
-    ragContext.length > 0
-      ? `\n\nRAG Context (use to improve accuracy):\n${ragContext.join("\n")}`
-      : "";
-
-  const ocrStr = ocrText ? `\n\nOCR Text extracted:\n${ocrText}` : "";
+  const contextStr = ragContext.length > 0
+    ? `\n\nRAG Context (use to improve accuracy):\n${ragContext.join('\n')}`
+    : '';
+  const ocrStr = ocrText ? `\n\nOCR Text extracted:\n${ocrText}` : '';
 
   const response = await getGroq().chat.completions.create({
-    model: "qwen/qwen3.6-27b",
-    messages: [
-      {
-        role: "user",
-        content: [
-          { type: "text", text: EXTRACTION_PROMPT + ocrStr + contextStr },
-          {
-            type: "image_url",
-            image_url: { url: `data:image/jpeg;base64,${imageBase64}` },
-          },
-        ],
-      },
-    ],
+    model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+    messages: [{
+      role: 'user',
+      content: [
+        { type: 'text', text: EXTRACTION_PROMPT + ocrStr + contextStr },
+        { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
+      ],
+    }],
     max_tokens: 2000,
     temperature: 0.1,
   });
 
   const content = response.choices[0].message.content;
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error("Failed to parse AI response");
-  return parseJSONRepaired(jsonMatch[0]);
+  console.log('[Groq raw response]', content.slice(0, 300));
+
+  try {
+    return parseJSONSafe(content);
+  } catch (err) {
+    console.error('[JSON parse error]', err.message);
+    console.error('[Raw content]', content);
+    throw new Error(`AI returned invalid JSON: ${err.message}`);
+  }
 };
 
 const detectPlatform = (extracted) => {
