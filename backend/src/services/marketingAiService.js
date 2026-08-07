@@ -1,6 +1,18 @@
-const getGroq = () => {
-  const Groq = require('groq-sdk');
-  return new Groq({ apiKey: process.env.GROQ_API_KEY });
+const getLLMClient = () => {
+  const apiKey = process.env.GROQ_API_KEY || '';
+  if (apiKey.startsWith('sk-')) {
+    const OpenAI = require('openai');
+    return {
+      client: new OpenAI({ apiKey, baseURL: 'https://api.x.ai/v1' }),
+      model: 'grok-2-1212'
+    };
+  } else {
+    const Groq = require('groq-sdk');
+    return {
+      client: new Groq({ apiKey }),
+      model: 'llama-3.3-70b-versatile'
+    };
+  }
 };
 
 const MARKETING_GEN_PROMPT = `You are an expert AI Marketing Assistant and copywriter.
@@ -71,8 +83,9 @@ exports.generateMarketingContent = async (product) => {
       .replace('{{platform}}', product.platform || 'N/A')
       .replace('{{features}}', featuresList);
 
-    const response = await getGroq().chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+    const { client, model } = getLLMClient();
+    const response = await client.chat.completions.create({
+      model: model,
       messages: [
         { role: "user", content: prompt }
       ],

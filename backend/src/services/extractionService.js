@@ -2,7 +2,22 @@ const Groq = require('groq-sdk');
 const Tesseract = require('tesseract.js');
 const { retrieveContext } = require('./ragService');
 
-const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
+const getLLMClient = () => {
+  const apiKey = process.env.GROQ_API_KEY || '';
+  if (apiKey.startsWith('sk-')) {
+    const OpenAI = require('openai');
+    return {
+      client: new OpenAI({ apiKey, baseURL: 'https://api.x.ai/v1' }),
+      model: 'grok-2-1212'
+    };
+  } else {
+    const Groq = require('groq-sdk');
+    return {
+      client: new Groq({ apiKey }),
+      model: 'llama-3.3-70b-versatile'
+    };
+  }
+};
 
 const EXTRACTION_PROMPT = `You are an expert e-commerce product data extractor.
 You will receive raw OCR text from a product screenshot (Amazon, Flipkart, Meesho, Myntra, Ajio, etc).
@@ -142,8 +157,9 @@ const extractWithLLM = async (ocrText, ragContext) => {
 
   const userMessage = `Extract all product details from this OCR text. Pay special attention to prices - identify MRP_ORIGINAL as "price" and DEAL_PRICE as "discount_price".\n\nOCR TEXT:\n${processedText}${contextStr}`;
 
-  const response = await getGroq().chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+  const { client, model } = getLLMClient();
+  const response = await client.chat.completions.create({
+    model: model,
     messages: [
       { role: 'system', content: EXTRACTION_PROMPT },
       { role: 'user', content: userMessage },
@@ -155,7 +171,7 @@ const extractWithLLM = async (ocrText, ragContext) => {
 
   const content = response.choices[0].message.content;
   console.log('[OCR text preview]', processedText.slice(0, 300));
-  console.log('[Groq response preview]', content.slice(0, 300));
+  console.log('[LLM response preview]', content.slice(0, 300));
 
   try {
     return parseJSONSafe(content);

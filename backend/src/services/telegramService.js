@@ -18,13 +18,11 @@ const formatMessage = (extraction) => {
 
   const productLink = escapeHtml(extraction.affiliateUrl || extraction.manualProductUrl || extraction.productLinks?.amazon || extraction.productLinks?.flipkart || extraction.productLinks?.official || e['product_link']?.value || 'Not Found');
   
-  const platform = escapeHtml(extraction.platform) || 'Not Found';
   const price = val('discount_price') !== 'Not Found' ? val('discount_price') : val('price');
-  const mrp = val('price') !== 'Not Found' ? val('price') : 'Not Found';
+  const mrp = val('price') !== 'Not Found' ? val('price') : (val('discount_price') !== 'Not Found' ? val('discount_price') : 'Not Found');
   
-  // Try to calculate savings if price and MRP are numbers
-  let savings = 'Not Found';
-  if (price !== 'Not Found' && mrp !== 'Not Found') {
+  let savings = '0%';
+  if (price !== 'Not Found' && mrp !== 'Not Found' && price !== mrp) {
     const pStr = String(price).replace(/[^0-9.]/g, '');
     const mStr = String(mrp).replace(/[^0-9.]/g, '');
     if (pStr && mStr) {
@@ -36,61 +34,15 @@ const formatMessage = (extraction) => {
     }
   }
 
-  const features = e['features']?.value || [];
-  const featuresList = Array.isArray(features) && features.length > 0 
-    ? features.map(f => `• ${escapeHtml(f)}`).join('\n') 
-    : '• Not Found';
+  const deliv = val('delivery_info') !== 'Not Found' ? val('delivery_info') : 'Free Delivery';
 
-  const currentDate = new Date().toLocaleDateString('en-IN', {
-    day: 'numeric', month: 'short', year: 'numeric'
-  });
-
-  return `🔥 DEAL DETECTED 🔥
-
-📦 Product Name: ${val('product_name')}
-
-💰 Deal Price: ${price}
-
+  return `📦 ${val('product_name')}
+💰 Price: ${price}
 ❌ MRP: ${mrp}
-
 📉 Savings: ${savings}
 
-⭐ Rating: ${val('rating')}
-
-📝 Reviews: ${val('review_count')}
-
-📦 Availability: ${val('availability')}
-
-🎨 Color: ${val('color')}
-
-🏢 Brand: ${val('brand')}
-
-🛍 Platform: ${platform}
-
-📂 Category: ${val('category')}
-
-💾 Storage: ${val('storage')}
-
-⚡ RAM: ${val('ram')}
-
-📏 Size: ${val('size')}
-
-🚚 Delivery: ${val('delivery_info')}
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-📋 Key Features
-
-${featuresList}
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-🔗 BUY NOW:
-${productLink}
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-📅 Posted On: ${currentDate}`;
+🔗 LINK: ${productLink}
+🚚 ${deliv}`;
 };
 
 const sendToTelegram = async (botToken, chatId, extraction, imageUrl) => {
