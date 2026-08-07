@@ -158,16 +158,24 @@ const extractWithLLM = async (ocrText, ragContext) => {
   const userMessage = `Extract all product details from this OCR text. Pay special attention to prices - identify MRP_ORIGINAL as "price" and DEAL_PRICE as "discount_price".\n\nOCR TEXT:\n${processedText}${contextStr}`;
 
   const { client, model } = getLLMClient();
-  const response = await client.chat.completions.create({
-    model: model,
-    messages: [
-      { role: 'system', content: EXTRACTION_PROMPT },
-      { role: 'user', content: userMessage },
-    ],
-    max_tokens: 2000,
-    temperature: 0.05,
-    response_format: { type: 'json_object' },
-  });
+  let response;
+  try {
+    response = await client.chat.completions.create({
+      model: model,
+      messages: [
+        { role: 'system', content: EXTRACTION_PROMPT },
+        { role: 'user', content: userMessage },
+      ],
+      max_tokens: 2000,
+      temperature: 0.05,
+      response_format: { type: 'json_object' },
+    });
+  } catch (error) {
+    if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.startsWith('sk-')) {
+      throw new Error(`Grok API key is invalid or unauthorized. Please check your console.x.ai account billing and key details. Original error: ${error.message}`);
+    }
+    throw error;
+  }
 
   const content = response.choices[0].message.content;
   console.log('[OCR text preview]', processedText.slice(0, 300));

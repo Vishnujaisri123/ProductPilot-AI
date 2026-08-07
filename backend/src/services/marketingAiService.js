@@ -84,14 +84,22 @@ exports.generateMarketingContent = async (product) => {
       .replace('{{features}}', featuresList);
 
     const { client, model } = getLLMClient();
-    const response = await client.chat.completions.create({
-      model: model,
-      messages: [
-        { role: "user", content: prompt }
-      ],
-      max_tokens: 3000,
-      temperature: 0.7
-    });
+    let response;
+    try {
+      response = await client.chat.completions.create({
+        model: model,
+        messages: [
+          { role: "user", content: prompt }
+        ],
+        max_tokens: 3000,
+        temperature: 0.7
+      });
+    } catch (error) {
+      if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.startsWith('sk-')) {
+        throw new Error(`Grok API key is invalid or unauthorized. Please check your console.x.ai account billing and key details. Original error: ${error.message}`);
+      }
+      throw error;
+    }
 
     const content = response.choices[0].message.content;
     const jsonMatch = content.match(/\{[\s\S]*\}/);
