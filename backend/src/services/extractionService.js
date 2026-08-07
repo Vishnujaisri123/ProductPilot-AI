@@ -5,20 +5,55 @@ const { retrieveContext } = require('./ragService');
 const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const EXTRACTION_PROMPT = `You are an expert e-commerce product data extractor.
-You will receive raw OCR text extracted from a product screenshot.
-Parse it and return structured product data as a JSON object.
+You will receive raw OCR text from a product screenshot (Amazon, Flipkart, Meesho, Myntra, Ajio, etc).
 
-CRITICAL RULES:
-1. Return ONLY a raw JSON object. No markdown, no code fences, no explanation.
-2. "price": The original MRP (crossed-out/strikethrough price). Include currency symbol.
-3. "discount_price": The current selling price (price you actually pay). Include currency symbol.
-4. "description": Max 100 characters. Plain text only, no quotes inside.
-5. "features": Array of short plain strings, each max 80 characters.
-6. String values must NOT contain unescaped double quotes or newlines.
-7. If a field is not found, use empty string "" and confidence 0.
-8. Platform detection: look for amazon.in, flipkart.com, meesho.com, myntra.com, ajio.com, alibaba.com in the text.
+## PRICE EXTRACTION RULES (most important):
+OCR text cannot show strikethrough visually, so use these patterns to identify prices:
 
-Return ONLY this exact JSON structure:
+ORIGINAL MRP ("price" field):
+- Text near: "M.R.P", "MRP", "Original Price", "Was:", "Market Price", "List Price", "₹" followed by a higher number that appears BEFORE a lower number
+- On Amazon: line starting with "M.R.P. :" or "M.R.P:"
+- On Flipkart: line with "Original Price" or the higher ₹ value shown with a slash
+- Pattern: if two prices exist, the HIGHER one is usually MRP
+
+DEAL/SELLING PRICE ("discount_price" field):
+- Text near: "Deal Price", "Selling Price", "Offer Price", "Our Price", "Price:", "Buy Now", "Add to Cart"
+- On Amazon: line starting with "-X%" then the price, or "Deal of the Day"
+- On Flipkart: the LOWER price shown prominently
+- Pattern: if two prices exist, the LOWER one is the selling price
+- If only ONE price exists in the text, put it in "discount_price" and leave "price" empty
+
+## DISCOUNT DETECTION:
+- Look for patterns like "X% off", "Save ₹X", "You save: ₹X"
+- Calculate: if you see "20% off" and selling price ₹800, MRP = ₹1000
+
+## PLATFORM DETECTION:
+- "amazon.in", "amzn", "Amazon" → amazon
+- "flipkart.com", "Flipkart" → flipkart  
+- "meesho.com", "Meesho" → meesho
+- "myntra.com", "Myntra" → myntra
+- "ajio.com", "AJIO" → ajio
+- "alibaba.com" → alibaba
+
+## RATING & REVIEWS:
+- Rating: number like "4.2", "4.5 out of 5", "★4.3"
+- Reviews: number near "ratings", "reviews", "verified purchases"
+
+## OTHER FIELDS:
+- RAM: look for "4GB", "8GB", "12GB RAM"
+- Storage: look for "64GB", "128GB", "256GB storage/ROM"
+- Color: look for "Colour:", "Color:", specific color names
+- Availability: "In Stock", "Out of Stock", "Only X left"
+- Delivery: "FREE delivery", "Get it by", "Delivery by"
+
+## OUTPUT FORMAT:
+Return ONLY a valid JSON object. No markdown, no explanation, no code fences.
+Confidence score rules:
+- 90-100: field clearly visible in text
+- 70-89: field inferred from context
+- 40-69: uncertain/guessed
+- 0: not found
+
 {
   "product_name": {"value": "", "confidence": 0},
   "brand": {"value": "", "confidence": 0},
@@ -41,9 +76,34 @@ Return ONLY this exact JSON structure:
   "delivery_info": {"value": "", "confidence": 0}
 }`;
 
+// Preprocess OCR text to normalize price patterns
+const preprocessOCR = (text) => {
+  return text
+    // Normalize rupee symbols (OCR often misreads ₹)
+    .replace(/Rs\.?\s*/gi, '₹')
+    .replace(/INR\s*/gi, '₹')
+    .replace(/\bRs\b/gi, '₹')
+    // Normalize common OCR misreads for prices
+    .replace(/₹\s+(\d)/g, '₹$1')
+    // Highlight MRP patterns for the LLM
+    .replace(/(M\.?R\.?P\.?\s*:?\s*)(₹[\d,]+)/gi, 'MRP_ORIGINAL: $2')
+    .replace(/(market price\s*:?\s*)(₹[\d,]+)/gi, 'MRP_ORIGINAL: $2')
+    .replace(/(was\s*:?\s*)(₹[\d,]+)/gi, 'MRP_ORIGINAL: $2')
+    .replace(/(list price\s*:?\s*)(₹[\d,]+)/gi, 'MRP_ORIGINAL: $2')
+    // Highlight deal price patterns
+    .replace(/(deal price\s*:?\s*)(₹[\d,]+)/gi, 'DEAL_PRICE: $2')
+    .replace(/(selling price\s*:?\s*)(₹[\d,]+)/gi, 'DEAL_PRICE: $2')
+    .replace(/(offer price\s*:?\s*)(₹[\d,]+)/gi, 'DEAL_PRICE: $2')
+    .replace(/(our price\s*:?\s*)(₹[\d,]+)/gi, 'DEAL_PRICE: $2')
+    // Clean up excessive whitespace
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+};
+
 const extractWithOCR = async (imageBuffer) => {
   const { data: { text } } = await Tesseract.recognize(imageBuffer, 'eng+hin', {
     logger: () => {},
+    tessedit_pageseg_mode: '3', // Fully automatic page segmentation
   });
   return text;
 };
@@ -62,7 +122,6 @@ const parseJSONSafe = (raw) => {
   s = s.replace(/,\s*([}\]])/g, '$1');
   try { return JSON.parse(s); } catch (_) {}
 
-  // Sanitize unescaped control characters inside strings
   s = s.replace(/"((?:[^"\\]|\\.)*)"/g, (_, inner) => {
     const fixed = inner
       .replace(/\n/g, '\\n')
@@ -76,22 +135,27 @@ const parseJSONSafe = (raw) => {
 
 const extractWithLLM = async (ocrText, ragContext) => {
   const contextStr = ragContext.length > 0
-    ? `\n\nRAG Context (use to improve accuracy):\n${ragContext.join('\n')}`
+    ? `\n\nKnowledge Base Context:\n${ragContext.join('\n')}`
     : '';
+
+  const processedText = preprocessOCR(ocrText);
+
+  const userMessage = `Extract all product details from this OCR text. Pay special attention to prices - identify MRP_ORIGINAL as "price" and DEAL_PRICE as "discount_price".\n\nOCR TEXT:\n${processedText}${contextStr}`;
 
   const response = await getGroq().chat.completions.create({
     model: 'llama-3.3-70b-versatile',
     messages: [
       { role: 'system', content: EXTRACTION_PROMPT },
-      { role: 'user', content: `Extract product data from this OCR text:\n\n${ocrText}${contextStr}` },
+      { role: 'user', content: userMessage },
     ],
     max_tokens: 2000,
-    temperature: 0.1,
+    temperature: 0.05,
     response_format: { type: 'json_object' },
   });
 
   const content = response.choices[0].message.content;
-  console.log('[Groq response preview]', content.slice(0, 200));
+  console.log('[OCR text preview]', processedText.slice(0, 300));
+  console.log('[Groq response preview]', content.slice(0, 300));
 
   try {
     return parseJSONSafe(content);
@@ -123,6 +187,10 @@ const generateProductLinks = (extracted) => {
     links.amazon = links.amazon || `https://www.amazon.in/s?k=${encodeURIComponent(name)}`;
   if (platform === 'flipkart' && name)
     links.flipkart = links.flipkart || `https://www.flipkart.com/search?q=${encodeURIComponent(name)}`;
+  if (platform === 'meesho' && name)
+    links.official = links.official || `https://www.meesho.com/search?q=${encodeURIComponent(name)}`;
+  if (platform === 'myntra' && name)
+    links.official = links.official || `https://www.myntra.com/${encodeURIComponent(name)}`;
 
   return links;
 };
@@ -138,6 +206,8 @@ const extractProduct = async (imageBuffer, filename) => {
 
   const ocrText = await extractWithOCR(imageBuffer).catch(() => '');
   if (!ocrText.trim()) throw new Error('OCR could not read any text from the image. Please upload a clearer screenshot.');
+
+  console.log('[OCR raw length]', ocrText.length, 'chars');
 
   const ragContext = await retrieveContext(ocrText).catch(() => []);
   const extracted = await extractWithLLM(ocrText, ragContext);
